@@ -4,24 +4,30 @@ import { useEffect, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { readUser, writeUser } from '../services/storage';
 
-export function useFollows() {
+interface UseFollows {
+  keywords: string[];
+  add: (kw: string) => void;
+  remove: (kw: string) => void;
+}
+
+export function useFollows(): UseFollows {
   const { user } = useAuth();
-  const [keywords, setKeywords] = useState([]);
+  const [keywords, setKeywords] = useState<string[]>([]);
 
   useEffect(() => {
-    setKeywords(user ? readUser(user.id, 'keywords', []) : []);
+    setKeywords(user ? readUser<string[]>(user.id, 'keywords', []) : []);
   }, [user]);
 
-  const save = (next) => {
+  const save = (next: string[]): void => {
     setKeywords(next);
-    if (user) writeUser(user.id, 'keywords', next);
+    if (user) writeUser<string[]>(user.id, 'keywords', next);
   };
 
-  const add = (kw) => {
+  const add = (kw: string): void => {
     const k = kw.trim();
     if (k && !keywords.some((x) => x.toLowerCase() === k.toLowerCase())) save([...keywords, k]);
   };
-  const remove = (kw) => save(keywords.filter((x) => x !== kw));
+  const remove = (kw: string): void => save(keywords.filter((x) => x !== kw));
 
   return { keywords, add, remove };
 }

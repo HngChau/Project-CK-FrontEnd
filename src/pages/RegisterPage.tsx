@@ -1,20 +1,22 @@
 import { useState } from 'react';
+import type { FormEvent } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import type { RegisterInput } from '../types';
 
 export default function RegisterPage() {
   const { register } = useAuth();
   const navigate = useNavigate();
-  const [form, setForm] = useState({ name: '', email: '', password: '' });
+  const [form, setForm] = useState<RegisterInput>({ name: '', email: '', password: '' });
   const [error, setError] = useState('');
 
-  const submit = async (e) => {
+  const submit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
       await register(form);
       navigate('/', { replace: true });
     } catch (err) {
-      setError(err.message);
+      setError(err instanceof Error ? err.message : 'Đăng ký thất bại');
     }
   };
 

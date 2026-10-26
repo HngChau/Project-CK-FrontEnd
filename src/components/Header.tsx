@@ -1,15 +1,16 @@
 import { useState } from 'react';
+import type { FormEvent } from 'react';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
 import { CATEGORIES } from '../config/categories';
 import { useAuth } from '../context/AuthContext';
-import WeatherWidget from './WeatherWidget.jsx';
+import WeatherWidget from './WeatherWidget';
 
 export default function Header() {
   const { user, logout } = useAuth();
   const [q, setQ] = useState('');
   const navigate = useNavigate();
 
-  const submit = (e) => {
+  const submit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (q.trim()) navigate(`/tim-kiem?q=${encodeURIComponent(q.trim())}`);
   };

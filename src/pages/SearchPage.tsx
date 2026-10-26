@@ -1,11 +1,11 @@
 import { useSearchParams } from 'react-router-dom';
 import { searchArticles } from '../services/rss';
 import { useAsync } from '../hooks/useAsync';
-import ArticleList from '../components/ArticleList.jsx';
+import ArticleList from '../components/ArticleList';
 
 export default function SearchPage() {
   const [params] = useSearchParams();
-  const q = params.get('q') || '';
+  const q = params.get('q') ?? '';
   const state = useAsync(() => searchArticles(q), [q]);
   return (
     <>

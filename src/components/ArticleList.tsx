@@ -1,6 +1,12 @@
-import ArticleCard from './ArticleCard.jsx';
+import ArticleCard from './ArticleCard';
+import type { Article, AsyncState } from '../types';
 
-export default function ArticleList({ state, empty = 'Chưa có bài viết.' }) {
+interface Props {
+  state: AsyncState<Article[]>;
+  empty?: string;
+}
+
+export default function ArticleList({ state, empty = 'Chưa có bài viết.' }: Props) {
   const { data, loading, error } = state;
   if (loading) return <p className="status">Đang tải tin...</p>;
   if (error) return <p className="status error">Không tải được tin: {error.message}. Thử lại sau ít phút.</p>;

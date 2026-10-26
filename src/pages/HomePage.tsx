@@ -1,6 +1,6 @@
 import { getFeed } from '../services/rss';
 import { useAsync } from '../hooks/useAsync';
-import ArticleList from '../components/ArticleList.jsx';
+import ArticleList from '../components/ArticleList';
 
 export default function HomePage() {
   const state = useAsync(() => getFeed('trang-chu'), []);

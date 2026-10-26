@@ -1,5 +1,5 @@
 import { useBookmarks } from '../hooks/useBookmarks';
-import ArticleCard from '../components/ArticleCard.jsx';
+import ArticleCard from '../components/ArticleCard';
 
 // CHỨC NĂNG MỚI 1 (TV2)
 export default function SavedPage() {
