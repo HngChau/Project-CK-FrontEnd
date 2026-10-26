@@ -14,7 +14,7 @@ export default function WeatherWidget() {
           <option key={c.name} value={i}>{c.name}</option>
         ))}
       </select>
-      <span>{loading ? '...' : error ? 'Lỗi' : `${data.temp}°C, ${describeCode(data.code)}`}</span>
+      <span>{loading ? '...' : error || !data ? 'Lỗi' : `${data.temp}°C, ${describeCode(data.code)}`}</span>
     </div>
   );
 }

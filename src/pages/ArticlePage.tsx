@@ -1,10 +1,10 @@
 import { useParams, useSearchParams } from 'react-router-dom';
 import { getArticle, timeAgo } from '../services/rss';
 import { useAsync } from '../hooks/useAsync';
-import BookmarkButton from '../components/BookmarkButton.jsx';
+import BookmarkButton from '../components/BookmarkButton';
 
 export default function ArticlePage() {
-  const { id } = useParams();
+  const { id = '' } = useParams<{ id: string }>();
   const [params] = useSearchParams();
   const { data: a, loading, error } = useAsync(() => getArticle(id, params.get('c')), [id]);
 

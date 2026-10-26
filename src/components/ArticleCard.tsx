@@ -1,8 +1,14 @@
 import { Link } from 'react-router-dom';
 import { timeAgo } from '../services/rss';
-import BookmarkButton from './BookmarkButton.jsx';
+import BookmarkButton from './BookmarkButton';
+import type { Article } from '../types';
 
-export default function ArticleCard({ article, large = false }) {
+interface Props {
+  article: Article;
+  large?: boolean;
+}
+
+export default function ArticleCard({ article, large = false }: Props) {
   const to = `/bai-viet/${article.id}?c=${article.category}`;
   return (
     <article className={large ? 'card card-large' : 'card'}>

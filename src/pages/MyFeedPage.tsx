@@ -1,15 +1,17 @@
 import { useState } from 'react';
+import type { FormEvent } from 'react';
 import { useFollows } from '../hooks/useFollows';
 import { getAllFeeds, removeAccents } from '../services/rss';
 import { useAsync } from '../hooks/useAsync';
-import ArticleList from '../components/ArticleList.jsx';
+import ArticleList from '../components/ArticleList';
+import type { Article } from '../types';
 
 // CHỨC NĂNG MỚI 2 (TV3)
 export default function MyFeedPage() {
   const { keywords, add, remove } = useFollows();
   const [input, setInput] = useState('');
 
-  const state = useAsync(async () => {
+  const state = useAsync<Article[]>(async () => {
     if (!keywords.length) return [];
     const all = await getAllFeeds();
     const keys = keywords.map(removeAccents);
@@ -19,7 +21,7 @@ export default function MyFeedPage() {
     });
   }, [keywords.join('|')]);
 
-  const submit = (e) => {
+  const submit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     add(input);
     setInput('');

@@ -2,10 +2,10 @@ import { useParams } from 'react-router-dom';
 import { getFeed } from '../services/rss';
 import { getCategory } from '../config/categories';
 import { useAsync } from '../hooks/useAsync';
-import ArticleList from '../components/ArticleList.jsx';
+import ArticleList from '../components/ArticleList';
 
 export default function CategoryPage() {
-  const { slug } = useParams();
+  const { slug = '' } = useParams<{ slug: string }>();
   const cat = getCategory(slug);
   const state = useAsync(() => getFeed(slug), [slug]);
   if (!cat) return <p>Chuyên mục không tồn tại.</p>;

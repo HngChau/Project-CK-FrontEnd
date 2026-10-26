@@ -1,15 +1,15 @@
 import { Routes, Route } from 'react-router-dom';
-import Header from './components/Header.jsx';
-import Footer from './components/Footer.jsx';
-import ProtectedRoute from './components/ProtectedRoute.jsx';
-import HomePage from './pages/HomePage.jsx';
-import CategoryPage from './pages/CategoryPage.jsx';
-import SearchPage from './pages/SearchPage.jsx';
-import ArticlePage from './pages/ArticlePage.jsx';
-import LoginPage from './pages/LoginPage.jsx';
-import RegisterPage from './pages/RegisterPage.jsx';
-import SavedPage from './pages/SavedPage.jsx';
-import MyFeedPage from './pages/MyFeedPage.jsx';
+import Header from './components/Header';
+import Footer from './components/Footer';
+import ProtectedRoute from './components/ProtectedRoute';
+import HomePage from './pages/HomePage';
+import CategoryPage from './pages/CategoryPage';
+import SearchPage from './pages/SearchPage';
+import ArticlePage from './pages/ArticlePage';
+import LoginPage from './pages/LoginPage';
+import RegisterPage from './pages/RegisterPage';
+import SavedPage from './pages/SavedPage';
+import MyFeedPage from './pages/MyFeedPage';
 
 export default function App() {
   return (

@@ -1,8 +1,13 @@
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useBookmarks } from '../hooks/useBookmarks';
+import type { Article } from '../types';
 
-export default function BookmarkButton({ article }) {
+interface Props {
+  article: Article;
+}
+
+export default function BookmarkButton({ article }: Props) {
   const { user } = useAuth();
   const { isSaved, toggle } = useBookmarks();
   const navigate = useNavigate();

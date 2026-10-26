@@ -1,5 +1,7 @@
+import type { Category } from '../types';
+
 // Kiểm tra lại danh sách RSS thật tại https://dantri.com.vn/rss.htm rồi chỉnh slug/rss cho đúng.
-export const CATEGORIES = [
+export const CATEGORIES: Category[] = [
   { slug: 'trang-chu', name: 'Trang chủ', rss: 'https://dantri.com.vn/rss/home.rss' },
   { slug: 'xa-hoi', name: 'Xã hội', rss: 'https://dantri.com.vn/rss/xa-hoi.rss' },
   { slug: 'the-gioi', name: 'Thế giới', rss: 'https://dantri.com.vn/rss/the-gioi.rss' },
@@ -11,4 +13,5 @@ export const CATEGORIES = [
   { slug: 'phap-luat', name: 'Pháp luật', rss: 'https://dantri.com.vn/rss/phap-luat.rss' },
 ];
 
-export const getCategory = (slug) => CATEGORIES.find((c) => c.slug === slug);
+export const getCategory = (slug: string): Category | undefined =>
+  CATEGORIES.find((c) => c.slug === slug);

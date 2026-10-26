@@ -1,21 +1,24 @@
 import { useState } from 'react';
+import type { FormEvent } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import type { LoginInput } from '../types';
 
 export default function LoginPage() {
   const { login } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-  const [form, setForm] = useState({ email: '', password: '' });
+  const [form, setForm] = useState<LoginInput>({ email: '', password: '' });
   const [error, setError] = useState('');
 
-  const submit = async (e) => {
+  const submit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
       await login(form);
-      navigate(location.state?.from || '/', { replace: true });
+      const from = (location.state as { from?: string } | null)?.from ?? '/';
+      navigate(from, { replace: true });
     } catch (err) {
-      setError(err.message);
+      setError(err instanceof Error ? err.message : 'Đăng nhập thất bại');
     }
   };
 
