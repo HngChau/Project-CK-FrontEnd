@@ -1,15 +1,16 @@
 // Đăng nhập giả lập phía client (không có server): người dùng lưu trong localStorage.
 // Mật khẩu được băm SHA-256 + salt bằng Web Crypto (cần https hoặc localhost).
-import type { LoginInput, RegisterInput, StoredUser, User } from '../types';
-import { readJSON, writeJSON } from './storage';
+import type {LoginInput, RegisterInput, StoredUser, User} from '../types';
+import {readJSON, writeJSON} from './storage';
 
 const USERS_KEY = 'dt_users';
 const SESSION_KEY = 'dt_session';
 
-export type AuthField = 'name' | 'email' | 'password' | 'form';
+export type AuthField = 'name' | 'email' | 'password' | 'currentPassword' | 'newPassword' | 'form';
 
 export class AuthError extends Error {
     field: AuthField;
+
     constructor(message: string, field: AuthField = 'form') {
         super(message);
         this.name = 'AuthError';
@@ -33,6 +34,7 @@ export function validatePassword(password: string): string {
     }
     return '';
 }
+
 export function validateEmail(email: string): string {
     const value = normalizeEmail(email);
     if (!value) return 'Vui lòng nhập email';
@@ -40,7 +42,7 @@ export function validateEmail(email: string): string {
     return '';
 }
 
-export function validateLoginForm({ email, password }: LoginInput): FormErrors {
+export function validateLoginForm({email, password}: LoginInput): FormErrors {
     const errors: FormErrors = {};
     const emailError = validateEmail(email);
     if (emailError) errors.email = emailError;
@@ -54,7 +56,7 @@ export function validateName(name: string): string {
     return '';
 }
 
-export function validateRegisterForm({ name, email, password }: RegisterInput): FormErrors {
+export function validateRegisterForm({name, email, password}: RegisterInput): FormErrors {
     const errors: FormErrors = {};
     const nameError = validateName(name);
     if (nameError) errors.name = nameError;
@@ -76,7 +78,7 @@ async function hash(password: string, salt: string): Promise<string> {
         .join('');
 }
 
-const toPublic = (u: StoredUser): User => ({ id: u.id, name: u.name, email: u.email });
+const toPublic = (u: StoredUser): User => ({id: u.id, name: u.name, email: u.email});
 
 export function getSessionUser(): User | null {
     const id = localStorage.getItem(SESSION_KEY);
@@ -89,8 +91,8 @@ export function getSessionUser(): User | null {
     return toPublic(u);
 }
 
-export async function register({ name, email, password }: RegisterInput): Promise<User> {
-    const errors = validateRegisterForm({ name, email, password });
+export async function register({name, email, password}: RegisterInput): Promise<User> {
+    const errors = validateRegisterForm({name, email, password});
     if (errors.name) throw new AuthError(errors.name, 'name');
     if (errors.email) throw new AuthError(errors.email, 'email');
     if (errors.password) throw new AuthError(errors.password, 'password');
@@ -117,8 +119,8 @@ export async function register({ name, email, password }: RegisterInput): Promis
     return toPublic(user);
 }
 
-export async function login({ email, password }: LoginInput): Promise<User> {
-    const errors = validateLoginForm({ email, password });
+export async function login({email, password}: LoginInput): Promise<User> {
+    const errors = validateLoginForm({email, password});
     if (errors.email) throw new AuthError(errors.email, 'email');
     if (errors.password) throw new AuthError(errors.password, 'password');
 
@@ -133,4 +135,90 @@ export async function login({ email, password }: LoginInput): Promise<User> {
 
 export function logout(): void {
     localStorage.removeItem(SESSION_KEY);
+}
+
+function saveUsers(users: StoredUser[]): void {
+    try {
+        writeJSON<StoredUser[]>(USERS_KEY, users);
+    } catch {
+        throw new AuthError('Không thể lưu thay đổi, vui lòng kiểm tra bộ nhớ trình duyệt', 'form');
+    }
+}
+
+export function updateName(userId: string, name: string): User {
+    if (!name.trim()) throw new AuthError('Vui lòng nhập họ và tên', 'name');
+    const nameError = validateName(name);
+    if (nameError) throw new AuthError(nameError, 'name');
+
+    const users = readJSON<StoredUser[]>(USERS_KEY, []);
+    const index = users.findIndex((u) => u.id === userId);
+    if (index === -1) throw new AuthError('Tài khoản không tồn tại', 'form');
+
+    const updated: StoredUser = {...users[index], name: name.trim()};
+    const next = [...users];
+    next[index] = updated;
+    saveUsers(next);
+    return toPublic(updated);
+}
+
+export async function updateEmail(
+    userId: string,
+    email: string,
+    currentPassword: string
+): Promise<User> {
+    const emailError = validateEmail(email);
+    if (emailError) throw new AuthError(emailError, 'email');
+    if (!currentPassword) {
+        throw new AuthError('Vui lòng nhập mật khẩu hiện tại', 'currentPassword');
+    }
+
+    const users = readJSON<StoredUser[]>(USERS_KEY, []);
+    const index = users.findIndex((u) => u.id === userId);
+    if (index === -1) throw new AuthError('Tài khoản không tồn tại', 'form');
+
+    const user = users[index];
+    if (user.passHash !== (await hash(currentPassword, user.salt))) {
+        throw new AuthError('Mật khẩu hiện tại không đúng', 'currentPassword');
+    }
+
+    const mail = normalizeEmail(email);
+    if (users.some((u) => u.id !== userId && u.email === mail)) {
+        throw new AuthError('Email đã được đăng ký', 'email');
+    }
+
+    const updated: StoredUser = {...user, email: mail};
+    const next = [...users];
+    next[index] = updated;
+    saveUsers(next);
+    return toPublic(updated);
+}
+
+export async function changePassword(
+    userId: string,
+    currentPassword: string,
+    newPassword: string
+): Promise<void> {
+    if (!currentPassword) {
+        throw new AuthError('Vui lòng nhập mật khẩu hiện tại', 'currentPassword');
+    }
+    const newError = validatePassword(newPassword);
+    if (newError) throw new AuthError(newError, 'newPassword');
+
+    const users = readJSON<StoredUser[]>(USERS_KEY, []);
+    const index = users.findIndex((u) => u.id === userId);
+    if (index === -1) throw new AuthError('Tài khoản không tồn tại', 'form');
+
+    const user = users[index];
+    if (user.passHash !== (await hash(currentPassword, user.salt))) {
+        throw new AuthError('Mật khẩu hiện tại không đúng', 'currentPassword');
+    }
+    if (newPassword === currentPassword) {
+        throw new AuthError('Mật khẩu mới phải khác mật khẩu hiện tại', 'newPassword');
+    }
+
+    const salt = crypto.randomUUID();
+    const updated: StoredUser = {...user, salt, passHash: await hash(newPassword, salt)};
+    const next = [...users];
+    next[index] = updated;
+    saveUsers(next);
 }
