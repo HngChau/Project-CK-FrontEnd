@@ -24,6 +24,7 @@ const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 export const normalizeEmail = (email: string): string => email.trim().toLowerCase();
 export const PASSWORD_MIN = 6;
 export const PASSWORD_MAX = 20;
+export const NAME_MAX = 50;
 
 export function validatePassword(password: string): string {
     if (!password) return 'Vui lòng nhập mật khẩu';
@@ -41,6 +42,22 @@ export function validateEmail(email: string): string {
 
 export function validateLoginForm({ email, password }: LoginInput): FormErrors {
     const errors: FormErrors = {};
+    const emailError = validateEmail(email);
+    if (emailError) errors.email = emailError;
+    const passwordError = validatePassword(password);
+    if (passwordError) errors.password = passwordError;
+    return errors;
+}
+
+export function validateName(name: string): string {
+    if (name.trim().length > NAME_MAX) return 'Họ và tên nhập quá giới hạn ký tự cho phép';
+    return '';
+}
+
+export function validateRegisterForm({ name, email, password }: RegisterInput): FormErrors {
+    const errors: FormErrors = {};
+    const nameError = validateName(name);
+    if (nameError) errors.name = nameError;
     const emailError = validateEmail(email);
     if (emailError) errors.email = emailError;
     const passwordError = validatePassword(password);
@@ -73,10 +90,17 @@ export function getSessionUser(): User | null {
 }
 
 export async function register({ name, email, password }: RegisterInput): Promise<User> {
+    const errors = validateRegisterForm({ name, email, password });
+    if (errors.name) throw new AuthError(errors.name, 'name');
+    if (errors.email) throw new AuthError(errors.email, 'email');
+    if (errors.password) throw new AuthError(errors.password, 'password');
+
     const users = readJSON<StoredUser[]>(USERS_KEY, []);
     const mail = normalizeEmail(email);
-    if (users.some((u) => u.email === mail)) throw new Error('Email đã được đăng ký');
-    if (password.length < 6) throw new Error('Mật khẩu tối thiểu 6 ký tự');
+    if (users.some((u) => u.email === mail)) {
+        throw new AuthError('Email đã được đăng ký', 'email');
+    }
+
     const salt = crypto.randomUUID();
     const user: StoredUser = {
         id: crypto.randomUUID(),
@@ -85,8 +109,11 @@ export async function register({ name, email, password }: RegisterInput): Promis
         salt,
         passHash: await hash(password, salt),
     };
-    writeJSON<StoredUser[]>(USERS_KEY, [...users, user]);
-    localStorage.setItem(SESSION_KEY, user.id);
+    try {
+        writeJSON<StoredUser[]>(USERS_KEY, [...users, user]);
+    } catch {
+        throw new AuthError('Không thể lưu tài khoản, vui lòng kiểm tra bộ nhớ trình duyệt', 'form');
+    }
     return toPublic(user);
 }
 

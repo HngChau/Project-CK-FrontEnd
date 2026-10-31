@@ -224,6 +224,37 @@
     cursor: not-allowed;
 }
 
+.auth-count {
+    position: absolute;
+    top: 0;
+    right: 14px;
+    display: flex;
+    align-items: center;
+    height: 48px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--ink);
+    pointer-events: none;
+}
+
+.auth-count.is-over {
+    color: var(--err);
+}
+
+.auth-password:has(.auth-count) input {
+    padding-right: 64px;
+}
+
+.auth-success {
+    margin: 0 0 14px;
+    padding: 10px 12px;
+    border-radius: 4px;
+    background: #e8f5ee;
+    color: var(--green-dark);
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
 @media (max-width: 480px) {
     .auth-overlay {
         padding: 16px 8px;
