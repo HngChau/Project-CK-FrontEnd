@@ -1,0 +1,503 @@
+/* TRANG CHI TIẾT BÀI VIẾT  */
+.art-page {
+    display: grid;
+    grid-template-columns: 56px minmax(0, 1fr) 300px;
+    grid-template-areas: "tool main side";
+    column-gap: 28px;
+    align-items: start;
+    padding-top: 8px;
+}
+
+/*  Thanh công cụ bên trái */
+.art-toolbar {
+    grid-area: tool;
+    position: sticky;
+    top: 130px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 6px 0;
+    background: #fff;
+    border-radius: 30px;
+    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.12);
+}
+
+.art-toolbar button {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 52px;
+    padding: 0;
+    background: none;
+    border: 0;
+    color: #222;
+}
+
+.art-toolbar button + button::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 8px;
+    right: 8px;
+    border-top: 1px solid #eee;
+}
+
+.art-toolbar button:hover,
+.art-toolbar button.is-active {
+    color: var(--green);
+}
+
+.art-toolbar-tip {
+    position: absolute;
+    left: 52px;
+    top: 50%;
+    transform: translateY(-50%);
+    padding: 6px 10px;
+    background: #222;
+    color: #fff;
+    border-radius: 4px;
+    font-size: 12px;
+    white-space: nowrap;
+}
+
+/* Cột nội dung chính  */
+.art-main {
+    grid-area: main;
+    min-width: 0;
+    color: #222;
+}
+
+.art-topline {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px 16px;
+    margin-bottom: 14px;
+}
+
+.art-breadcrumb {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    font-size: 17px;
+    color: #222;
+}
+
+.art-breadcrumb a:last-of-type {
+    color: #555;
+}
+
+.art-breadcrumb-sep {
+    color: #999;
+}
+
+.art-date {
+    font-size: 13px;
+    color: #666;
+}
+
+.art-title {
+    margin: 0 0 20px;
+    font-size: 36px;
+    line-height: 1.3;
+    font-weight: 700;
+    letter-spacing: -0.3px;
+    color: #000;
+}
+
+/* Nguồn bài và trình nghe  */
+.art-byline {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px 24px;
+    margin-bottom: 22px;
+}
+
+.art-source-chip {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    color: #333;
+}
+
+.art-source-logo {
+    display: grid;
+    place-items: center;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: var(--green);
+    color: #fff;
+    font-size: 11px;
+    font-weight: 800;
+}
+
+.art-listen {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex: 1;
+    min-width: 260px;
+    max-width: 460px;
+    margin-left: auto;
+    font-size: 13px;
+    color: #555;
+}
+
+.art-listen-btn {
+    display: grid;
+    place-items: center;
+    flex: none;
+    width: 30px;
+    height: 30px;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: var(--green);
+    color: #fff;
+}
+
+.art-listen-btn:hover {
+    background: var(--green-dark);
+}
+
+.art-listen-bar {
+    flex: 1;
+    height: 3px;
+    border-radius: 2px;
+    background: #ddd;
+    overflow: hidden;
+}
+
+.art-listen-bar span {
+    display: block;
+    height: 100%;
+    background: var(--green);
+    transition: width 0.3s linear;
+}
+
+.art-listen-time {
+    flex: none;
+    min-width: 44px;
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+}
+
+.art-listen-voice {
+    flex: none;
+    max-width: 150px;
+    padding: 2px 4px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    border: 0;
+    border-left: 1px solid #ddd;
+    background: none;
+    font: inherit;
+    color: #555;
+}
+
+/* Mở đầu, ảnh, nội dung  */
+.art-lead {
+    margin: 0 0 22px;
+    font-size: 19px;
+    line-height: 1.75;
+    color: #333;
+}
+
+.art-cover {
+    margin: 0 0 24px;
+}
+
+.art-cover img {
+    display: block;
+    width: 100%;
+    height: auto;
+    max-height: 520px;
+    object-fit: cover;
+}
+
+.art-cover figcaption {
+    padding: 8px 0 0;
+    font-size: 13px;
+    line-height: 1.5;
+    text-align: center;
+    color: #777;
+}
+
+.art-content {
+    font-size: 19px;
+    line-height: 1.75;
+    color: #333;
+    overflow-wrap: anywhere;
+}
+
+.art-content p {
+    margin: 0 0 20px;
+}
+
+.art-content h2,
+.art-content h3 {
+    margin: 28px 0 14px;
+    line-height: 1.45;
+    color: #111;
+}
+
+.art-content a {
+    color: #4043cf;
+}
+
+.art-content a:hover {
+    text-decoration: underline;
+}
+
+.art-content img {
+    display: block;
+    max-width: 100%;
+    height: auto;
+    margin: 24px auto;
+}
+
+.art-content figure {
+    max-width: 100%;
+    margin: 24px auto;
+}
+
+.art-content figcaption {
+    margin-top: 8px;
+    font-size: 13px;
+    text-align: center;
+    color: #777;
+}
+
+.art-content ul,
+.art-content ol {
+    margin: 0 0 20px;
+    padding-left: 26px;
+}
+
+.art-content blockquote {
+    margin: 24px 0;
+    padding-left: 18px;
+    border-left: 4px solid var(--green);
+    color: #555;
+}
+
+.art-empty {
+    padding: 14px 16px;
+    background: var(--soft);
+    border-left: 4px solid var(--green);
+    font-size: 16px;
+    color: #555;
+}
+
+.art-source {
+    margin-top: 32px;
+    padding-top: 18px;
+    border-top: 1px solid #eee;
+    font-size: 14px;
+}
+
+.art-source a {
+    margin-left: 6px;
+    font-weight: 600;
+    color: var(--green);
+}
+
+/*  Tin liên quan */
+.art-related {
+    margin-top: 40px;
+}
+
+.art-related h2,
+.art-side-list h2 {
+    margin: 0 0 16px;
+    padding-top: 12px;
+    border-top: 2px solid #222;
+    font-size: 17px;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: #111;
+}
+
+.art-related-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 22px;
+}
+
+.art-related-grid img {
+    width: 100%;
+    aspect-ratio: 3 / 2;
+    object-fit: cover;
+    background: var(--soft);
+}
+
+.art-related-grid h3 {
+    margin: 8px 0 4px;
+    font-size: 16px;
+    line-height: 1.4;
+}
+
+.art-related-grid time {
+    font-size: 12px;
+    color: #777;
+}
+
+/* Cột phải  */
+.art-sidebar {
+    grid-area: side;
+    min-width: 0;
+}
+
+.art-side-featured {
+    margin-bottom: 28px;
+    padding: 16px;
+    background: var(--soft);
+}
+
+.art-side-featured img {
+    width: 100%;
+    aspect-ratio: 3 / 2;
+    object-fit: cover;
+}
+
+.art-side-featured h3 {
+    margin: 12px 0 8px;
+    font-size: 18px;
+    line-height: 1.4;
+}
+
+.art-side-featured p {
+    margin: 0;
+    font-size: 14px;
+    line-height: 1.5;
+    color: #777;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.art-side-list ol {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.art-side-list li {
+    display: grid;
+    grid-template-columns: 24px minmax(0, 1fr) 96px;
+    column-gap: 10px;
+    align-items: start;
+    padding: 14px 0;
+    border-bottom: 1px solid #eee;
+}
+
+.art-side-num {
+    font-size: 18px;
+    font-weight: 700;
+    color: #d0021b;
+}
+
+.art-side-title {
+    font-size: 16px;
+    font-weight: 600;
+    line-height: 1.45;
+}
+
+.art-side-thumb img {
+    width: 96px;
+    height: 64px;
+    object-fit: cover;
+    background: var(--soft);
+}
+
+/*  Màn hình nhỏ  */
+@media (max-width: 1024px) {
+    .art-page {
+        grid-template-columns: minmax(0, 1fr);
+        grid-template-areas:
+      "main"
+      "side";
+        padding-bottom: 72px; /* chừa chỗ cho thanh công cụ cố định ở đáy */
+    }
+
+    .art-toolbar {
+        position: fixed;
+        top: auto;
+        bottom: 14px;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 20;
+        flex-direction: row;
+        padding: 0 6px;
+    }
+
+    .art-toolbar button {
+        width: 52px;
+        height: 46px;
+    }
+
+    .art-toolbar button + button::before {
+        top: 8px;
+        bottom: 8px;
+        left: 0;
+        right: auto;
+        border-top: 0;
+        border-left: 1px solid #eee;
+    }
+
+    .art-toolbar-tip {
+        left: 50%;
+        top: auto;
+        bottom: 54px;
+        transform: translateX(-50%);
+    }
+
+    .art-sidebar {
+        margin-top: 32px;
+    }
+}
+
+@media (max-width: 600px) {
+    .art-title {
+        font-size: 26px;
+    }
+
+    .art-lead,
+    .art-content {
+        font-size: 17px;
+    }
+
+    .art-listen {
+        min-width: 100%;
+        margin-left: 0;
+    }
+
+    .art-related-grid {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
+
+/* In bài */
+@media print {
+    .header,
+    .footer,
+    .art-toolbar,
+    .art-sidebar,
+    .art-related,
+    .art-listen {
+        display: none !important;
+    }
+
+    .art-page {
+        display: block;
+    }
+}
