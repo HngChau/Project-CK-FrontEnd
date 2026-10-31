@@ -12,7 +12,7 @@ interface RawItem {
   link?: string | null;
   description?: string | null;
   pubDate?: string | null;
-  content?: string | null;
+  content?: string | null;  
   thumbnail?: string | null;
   enclosure?: { link?: string | null } | null;
 }
@@ -65,8 +65,23 @@ function normalize(raw: RawItem, category: string): Article {
   };
 }
 
+// async function fetchWithTimeout(url: string, timeout=30000): Promise<Response> {
+//   const controller = new AbortController();
+//   const timer = setTimeout(() => controller.abort(), timeout);
+//   try {
+//     const res = await fetch(url, { signal: controller.signal });
+//     clearTimeout(timer);
+//     return res;
+//   } catch (err) {
+//     clearTimeout(timer);
+//     throw new Error('Timeout hoặc lỗi mạng');
+//   }
+// }
+
 async function fetchViaXml(url: string): Promise<RawItem[]> {
   const res = await fetch(XML_PROXY + encodeURIComponent(url));
+
+  // const res = await fetchWithTimeout(XML_PROXY + encodeURIComponent(url),30000);
   if (!res.ok) throw new Error('Proxy lỗi ' + res.status);
   const xml = new DOMParser().parseFromString(await res.text(), 'text/xml');
   return Array.from(xml.querySelectorAll('item')).map((it) => ({
@@ -78,7 +93,7 @@ async function fetchViaXml(url: string): Promise<RawItem[]> {
   }));
 }
 
-// Dự phòng: rss2json (bản miễn phí chỉ trả khoảng 10 tin/feed)
+// Dự phòng: rss2json
 async function fetchViaJson(url: string): Promise<RawItem[]> {
   const res = await fetch(JSON_API + encodeURIComponent(url));
   const data = (await res.json()) as Rss2JsonResponse;
@@ -86,25 +101,117 @@ async function fetchViaJson(url: string): Promise<RawItem[]> {
   return data.items;
 }
 
-export async function getFeed(slug: string): Promise<Article[]> {
-  const cached = feedCache.get(slug);
-  if (cached && Date.now() - cached.time < TTL) return cached.items;
-
-  const cat = getCategory(slug);
-  if (!cat) throw new Error('Chuyên mục không tồn tại');
-
-  let rawItems: RawItem[];
-  try {
-    rawItems = await fetchViaXml(cat.rss);
-    if (!rawItems.length) throw new Error('Feed rỗng');
-  } catch {
-    rawItems = await fetchViaJson(cat.rss);
-  }
-  const items = rawItems.filter((r) => r.link).map((r) => normalize(r, slug));
-  items.forEach((a) => articleCache.set(a.id, a));
-  feedCache.set(slug, { time: Date.now(), items });
-  return items;
+//JSON khong tai duoc mơi dung hàm này
+function getFallbackArticles(slug: string): Article[] {
+  return [
+    {
+      id: `fallback-${slug}-1`,
+      title: `Bản tin tổng hợp chuyên mục ${slug.toUpperCase()}`,
+      link: '#',
+      image: 'https://picsum.photos/800/450?random=' + slug.length,
+      summary: 'Hệ thống đang hiển thị dữ liệu lưu trữ tạm thời do đường truyền RSS trực tuyến từ nhà cung cấp đang bảo trì.',
+      content: 'Nội dung chi tiết đang được cập nhật.',
+      pubDate: new Date().toUTCString(),
+      category: slug,
+    },
+    {
+      id: `fallback-${slug}-2`,
+      title: `Cập nhật các thông tin và sự kiện mới trong ngày`,
+      link: '#',
+      image: 'https://picsum.photos/400/250?random=' + (slug.length + 1),
+      summary: 'Nhiều tin tức quan trọng đã được hệ thống ghi nhận và phân loại theo đúng chuyên mục.',
+      content: 'Nội dung chi tiết đang được cập nhật.',
+      pubDate: new Date().toUTCString(),
+      category: slug,
+    },
+    {
+      id: `fallback-${slug}-3`,
+      title: `Định hướng và các giải pháp triển khai trong thời gian tới`,
+      link: '#',
+      image: 'https://picsum.photos/400/250?random=' + (slug.length + 2),
+      summary: 'Tổng hợp các thông tin phân tích chiều sâu phục vụ nhu cầu đọc tin tức của người dùng.',
+      content: 'Nội dung chi tiết đang được cập nhật.',
+      pubDate: new Date().toUTCString(),
+      category: slug,
+    }
+  ];
 }
+const pendingRequests = new Map<string, Promise<Article[]>>();
+
+export async function getFeed(slug: string): Promise<Article[]> {
+  console.log('========== RSS DEBUG ==========');
+  console.log('Chuyên mục:', slug);
+  const cached = feedCache.get(slug);
+  if (cached && Date.now() - cached.time < TTL) {
+    console.log('ĐANG DÙNG CACHE:', cached.items.length);
+    return cached.items;
+  }
+  const pending = pendingRequests.get(slug);
+  if (pending) return pending;
+  const request =(async (): Promise<Article[]> => { 
+    const cat = getCategory(slug);
+    if (!cat) {
+      console.error('KHÔNG TÌM THẤY CATEGORY:', slug);
+      throw new Error('Chuyên mục không tồn tại');
+    }
+    console.log('RSS URL:', cat.rss);
+    let rawItems: RawItem[] = [];
+    // Thử AllOrigins
+    try {
+      console.log('ĐANG THỬ ALLORIGINS...');
+      rawItems = await fetchViaXml(cat.rss);
+      console.log('ALLORIGINS TRẢ VỀ:', rawItems);
+      if (!rawItems.length) {
+        throw new Error('RSS XML không có bài viết');
+      }
+    } catch (xmlError) {
+      console.warn('AllOrigins không phản hồi, chuyển sang RSS2JSON:',xmlError);
+      // Thử RSS2JSON
+      try {
+        console.log('ĐANG THỬ RSS2JSON...');
+        rawItems = await fetchViaJson(cat.rss);
+        console.log('RSS2JSON TRẢ VỀ:', rawItems);
+        if (!rawItems.length) {
+          throw new Error('RSS2JSON không có bài viết');
+        }
+      } catch (jsonError) {
+        console.error('RSS2JSON THẤT BẠI:', jsonError);
+        const fallback = getFallbackArticles(slug);
+        fallback.forEach(a => articleCache.set(a.id, a));
+        feedCache.set(slug, {
+          time: Date.now() - TTL + 30000,
+          items: fallback
+        });
+      console.warn('ĐANG HIỂN THỊ DỮ LIỆU MẪU');  
+      return fallback;
+    }
+  }
+  const items = rawItems.filter(item => item.link).map(item => normalize(item, slug));
+  if (!items.length) {
+    console.error('KHÔNG CHUẨN HÓA ĐƯỢC BÀI VIẾT');
+    return getFallbackArticles(slug);
+  }
+  items.forEach(a => articleCache.set(a.id, a));
+  feedCache.set(slug, {
+    time: Date.now(),
+    items
+  });
+
+  console.log('RSS THÀNH CÔNG:', items.length);
+  console.log('================================');
+
+  return items;
+})();
+  pendingRequests.set(slug, request);
+  try {
+    return await request;
+  } finally { 
+    pendingRequests.delete(slug);
+  }
+}
+
+
+
 
 export async function getAllFeeds(): Promise<Article[]> {
   const results = await Promise.allSettled(
