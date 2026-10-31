@@ -37,7 +37,7 @@ export default function HomePage() {
             return {
               name: cat.name,
               slug: cat.slug,
-              articles: articles.slice(0, 6),
+              articles: articles.slice(0, 5),
             };
           })
         );
@@ -56,77 +56,78 @@ export default function HomePage() {
   }
 
   return (
-    <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '24px', fontFamily: 'Arial, sans-serif', background: '#f8fafc' }}>
+    <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '20px', fontFamily: 'Arial, sans-serif', background: '#f5f5f5' }}>
       
       {featuredArticles && (
-        <section style={{ marginBottom: '40px', background: '#fff', borderRadius: '12px', overflow: 'hidden', boxShadow: '0 10px 25px -5px rgba(0,0,0,0.08)', display: 'grid', gridTemplateColumns: '1.6fr 1fr' }}>
-          <div style={{ position: 'relative', overflow: 'hidden' }}>
+        <section style={{ marginBottom: '35px', background: '#fff', borderRadius: '4px', overflow: 'hidden', border: '1px solid #e5e5e5', display: 'grid', gridTemplateColumns: '1.8fr 1fr' }}>
+          <div style={{ position: 'relative' }}>
             <img 
               src={featuredArticles.image || 'https://picsum.photos/800/450'} 
               alt={featuredArticles.title} 
-              style={{ width: '100%', height: '100%', minHeight: '400px', objectFit: 'cover' }} 
+              style={{ width: '100%', height: '100%', minHeight: '380px', objectFit: 'cover', display: 'block' }} 
             />
           </div>
-          <div style={{ padding: '36px', display: 'flex', flexDirection: 'column', justifyContent: 'center', background: '#ffffff' }}>
-            <span style={{ background: '#dc2626', color: '#fff', padding: '6px 12px', fontSize: '11px', borderRadius: '6px', fontWeight: '800', width: 'fit-content', letterSpacing: '0.5px', textTransform: 'uppercase', marginBottom: '16px' }}>
-              Tiêu Điểm Nổi Bật
+          <div style={{ padding: '28px', display: 'flex', flexDirection: 'column', justifyContent: 'center', background: '#ffffff' }}>
+            <span style={{ background: '#d70018', color: '#fff', padding: '4px 10px', fontSize: '11px', borderRadius: '2px', fontWeight: 'bold', width: 'fit-content', textTransform: 'uppercase', marginBottom: '12px' }}>
+              Tiêu điểm
             </span>
-            <h1 style={{ fontSize: '26px', margin: '0 0 16px 0', color: '#0f172a', lineHeight: '1.35', fontWeight: '700' }}>
+            <h1 style={{ fontSize: '24px', margin: '0 0 12px 0', color: '#222', lineHeight: '1.35', fontWeight: 'bold' }}>
               {featuredArticles.title}
             </h1>
-            <p style={{ color: '#475569', lineHeight: '1.6', fontSize: '15px', margin: '0 0 24px 0' }}>
+            <p style={{ color: '#555', lineHeight: '1.5', fontSize: '14px', margin: '0 0 20px 0' }}>
               {featuredArticles.summary}
             </p>
-            <span style={{ fontSize: '13px', color: '#94a3b8', fontWeight: '500' }}>
+            <span style={{ fontSize: '12px', color: '#888' }}>
               {featuredArticles.pubDate ? new Date(featuredArticles.pubDate).toLocaleDateString('vi-VN') : 'Mới cập nhật'}
             </span>
           </div>
         </section>
       )}  
 
-      {section.map((sec, index) => (
-        <section key={sec.slug} style={{ marginBottom: '45px', background: '#fff', padding: '28px', borderRadius: '12px', boxShadow: '0 4px 12px rgba(0,0,0,0.03)' }}> 
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '2px solid #dc2626', paddingBottom: '10px', marginBottom: '24px' }}>
-            <h3 style={{ color: '#dc2626', fontSize: '20px', margin: 0, fontWeight: '700', textTransform: 'uppercase' }}>
+      {section.map((sec) => (
+        <section key={sec.slug} style={{ marginBottom: '35px', background: '#fff', padding: '20px 24px', borderRadius: '4px', border: '1px solid #e5e5e5' }}> 
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '2px solid #d70018', paddingBottom: '8px', marginBottom: '20px' }}>
+            <h3 style={{ color: '#d70018', fontSize: '18px', margin: 0, fontWeight: 'bold', textTransform: 'uppercase' }}>
               {sec.name}
             </h3>
-            <span style={{ fontSize: '13px', color: '#2563eb', fontWeight: '600', cursor: 'pointer' }}>Xem tất cả &rarr;</span>
+            <span style={{ fontSize: '13px', color: '#0066cc', fontWeight: '600', cursor: 'pointer' }}>Xem thêm &raquo;</span>
           </div>
 
-          {index === 0 ? (
-            <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr 1fr', gap: '20px' }}>
-              {sec.articles[0] && (
-                <div style={{ gridRow: 'span 2', background: '#f8fafc', borderRadius: '8px', overflow: 'hidden', border: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column' }}>
-                  <img src={sec.articles[0].image || 'https://picsum.photos/600/400'} alt={sec.articles[0].title} style={{ width: '100%', height: '220px', objectFit: 'cover' }} />
-                  <div style={{ padding: '20px', display: 'flex', flexDirection: 'column', flexGrow: 1 }}>
-                    <h4 style={{ margin: '0 0 10px 0', fontSize: '17px', color: '#1e293b', lineHeight: '1.4', fontWeight: '700' }}>{sec.articles[0].title}</h4>
-                    <p style={{ fontSize: '14px', color: '#64748b', margin: 0, lineHeight: '1.5' }}>{sec.articles[0].summary}</p>
-                  </div>
-                </div>
-              )}
+          <div style={{ display: 'grid', gridTemplateColumns: '1.4fr 1fr', gap: '24px' }}>
+            {sec.articles[0] && (
+              <div style={{ display: 'flex', flexDirection: 'column', borderRight: '1px solid #eee', paddingRight: '24px' }}>
+                <img 
+                  src={sec.articles[0].image || 'https://picsum.photos/600/400'} 
+                  alt={sec.articles[0].title} 
+                  style={{ width: '100%', height: '240px', objectFit: 'cover', borderRadius: '4px', marginBottom: '12px', display: 'block' }} 
+                />
+                <h4 style={{ margin: '0 0 10px 0', fontSize: '18px', color: '#111', lineHeight: '1.35', fontWeight: 'bold' }}>
+                  {sec.articles[0].title}
+                </h4>
+                <p style={{ fontSize: '13px', color: '#555', margin: 0, lineHeight: '1.5' }}>
+                  {sec.articles[0].summary}
+                </p>
+              </div>
+            )}
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', justifyContent: 'flex-start' }}>
               {sec.articles.slice(1, 5).map((article) => (
-                <div key={article.id} style={{ display: 'flex', gap: '12px', alignItems: 'flex-start', background: '#f8fafc', padding: '12px', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
-                  <img src={article.image || 'https://picsum.photos/200/150'} alt={article.title} style={{ width: '90px', height: '75px', objectFit: 'cover', borderRadius: '6px', flexShrink: 0 }} />
+                <div key={article.id} style={{ display: 'flex', gap: '12px', alignItems: 'flex-start', paddingBottom: '12px', borderBottom: '1px solid #f0f0f0' }}>
+                  <img 
+                    src={article.image || 'https://picsum.photos/200/150'} 
+                    alt={article.title} 
+                    style={{ width: '100px', height: '70px', objectFit: 'cover', borderRadius: '3px', flexShrink: 0, display: 'block' }} 
+                  />
                   <div>
-                    <h5 style={{ margin: '0 0 6px 0', fontSize: '14px', color: '#1e293b', lineHeight: '1.35', fontWeight: '600' }}>{article.title}</h5>
-                    <span style={{ fontSize: '11px', color: '#94a3b8' }}>Mới cập nhật</span>
+                    <h5 style={{ margin: '0 0 6px 0', fontSize: '14px', color: '#222', lineHeight: '1.35', fontWeight: '600' }}>
+                      {article.title}
+                    </h5>
+                    <span style={{ fontSize: '11px', color: '#999' }}>Mới cập nhật</span>
                   </div>
                 </div>
               ))}
             </div>
-          ) : (
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: '20px' }}>
-              {sec.articles.map((article) => (
-                <div key={article.id} style={{ background: '#ffffff', borderRadius: '8px', overflow: 'hidden', border: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column', transition: 'transform 0.2s' }}>
-                  <img src={article.image || 'https://picsum.photos/400/250'} alt={article.title} style={{ width: '100%', height: '160px', objectFit: 'cover' }} />
-                  <div style={{ padding: '16px', display: 'flex', flexDirection: 'column', flexGrow: 1 }}>
-                    <h4 style={{ margin: '0 0 8px 0', fontSize: '15px', color: '#1e293b', lineHeight: '1.4', fontWeight: '600' }}>{article.title}</h4>
-                    <p style={{ fontSize: '13px', color: '#64748b', margin: 0, lineHeight: '1.4' }}>{article.summary}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
+          </div>
         </section>
       ))}
     </div>
