@@ -1,0 +1,237 @@
+.auth-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    display: flex;
+    overflow-y: auto;
+    padding: 32px 16px;
+    background: rgba(0, 0, 0, 0.55);
+}
+
+.auth-card {
+    position: relative;
+    box-sizing: border-box;
+    width: 100%;
+    max-width: 520px;
+    margin: auto;
+    padding: 28px 32px 32px;
+    background: var(--bg);
+    color: var(--ink);
+    border-radius: 4px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+    outline: none;
+}
+
+.auth-card *,
+.auth-card *::before,
+.auth-card *::after {
+    box-sizing: border-box;
+}
+
+.auth-close {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: transparent;
+    color: var(--muted);
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+}
+
+.auth-close:hover {
+    background: var(--soft);
+    color: var(--ink);
+}
+
+.auth-tabs {
+    display: flex;
+    margin: 18px 0 28px;
+}
+
+.auth-tab {
+    flex: 1;
+    padding: 0 0 12px;
+    text-align: center;
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--muted);
+    text-decoration: none;
+    border-bottom: 3px solid var(--line);
+}
+
+.auth-tab:hover {
+    color: var(--green);
+}
+
+.auth-tab.is-active {
+    color: var(--green);
+    border-bottom-color: var(--green);
+}
+
+.auth-lead {
+    margin: 0 0 16px;
+    text-align: center;
+    font-size: 1rem;
+    color: var(--ink);
+}
+
+.auth-social {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+}
+
+.auth-social button {
+    display: grid;
+    place-items: center;
+    width: 54px;
+    height: 54px;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: var(--soft);
+    cursor: not-allowed;
+}
+
+.auth-divider {
+    margin: 24px 0 20px;
+    border: 0;
+    border-top: 1px solid var(--line);
+}
+
+.auth-heading {
+    margin: 0 0 14px;
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: var(--ink);
+}
+
+.auth-field {
+    margin-bottom: 14px;
+}
+
+.auth-field label {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    color: var(--ink);
+}
+
+.auth-req {
+    color: var(--err);
+}
+
+.auth-field input {
+    display: block;
+    width: 100%;
+    height: 48px;
+    padding: 0 14px;
+    font: inherit;
+    color: var(--ink);
+    background: var(--bg);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    outline: none;
+}
+
+.auth-field input::placeholder {
+    color: var(--muted);
+    opacity: 0.7;
+}
+
+.auth-field input:focus {
+    border-color: var(--green);
+}
+
+.auth-field input[aria-invalid='true'] {
+    border-color: var(--err);
+}
+
+.auth-password {
+    position: relative;
+}
+
+.auth-password input {
+    padding-right: 48px;
+}
+
+.auth-eye {
+    position: absolute;
+    top: 0;
+    right: 0;
+    display: grid;
+    place-items: center;
+    width: 48px;
+    height: 48px;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: var(--muted);
+    cursor: pointer;
+}
+
+.auth-eye:hover {
+    color: var(--ink);
+}
+
+.auth-error {
+    display: block;
+    margin-top: 6px;
+    font-size: 0.85rem;
+    color: var(--err);
+}
+
+.auth-alert {
+    margin: 0 0 14px;
+    padding: 10px 12px;
+    border-radius: 4px;
+    background: #fdecea;
+    color: var(--err);
+    font-size: 0.9rem;
+}
+
+.auth-submit {
+    display: block;
+    width: 100%;
+    height: 48px;
+    margin-top: 20px;
+    font: inherit;
+    font-weight: 600;
+    border: 0;
+    border-radius: 4px;
+    color: #fff;
+    background: var(--green);
+    cursor: pointer;
+}
+
+.auth-submit:hover:not(:disabled) {
+    background: var(--green-dark);
+}
+
+.auth-submit:disabled {
+    color: var(--muted);
+    background: var(--line);
+    cursor: not-allowed;
+}
+
+@media (max-width: 480px) {
+    .auth-overlay {
+        padding: 16px 8px;
+    }
+    .auth-card {
+        padding: 20px 16px 24px;
+    }
+    .auth-tab {
+        font-size: 1.1rem;
+    }
+}
