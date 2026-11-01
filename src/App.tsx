@@ -12,7 +12,7 @@ import SavedPage from './pages/SavedPage';
 import MyFeedPage from './pages/MyFeedPage';
 import AuthDialog from './components/AuthDialog';
 import type { AuthLocationState } from './components/AuthDialog';
-
+import AccountPage from './pages/AccountPage';
 
 export default function App() {
     const location = useLocation();
@@ -37,6 +37,7 @@ export default function App() {
           {/* Chức năng mới 2 (TV3): theo dõi từ khóa + bản tin của tôi */}
           <Route path="/ban-tin-cua-toi" element={<ProtectedRoute><MyFeedPage /></ProtectedRoute>} />
           <Route path="*" element={<p>Không tìm thấy trang.</p>} />
+          <Route path="/tai-khoan" element={<ProtectedRoute><AccountPage /></ProtectedRoute>} />
         </Routes>
       </main>
       <Footer />
