@@ -32,6 +32,7 @@ export default function App() {
           <Route path="/chuyen-muc/:slug" element={<CategoryPage />} />
           <Route path="/tim-kiem" element={<SearchPage />} />
           <Route path="/bai-viet/:id" element={<ArticlePage />} />
+          <Route path="/:categorySlug/:articleSlug" element={<ArticlePage />} />
           {/* Chức năng mới 1 (TV2): đọc sau + bộ sưu tập */}
           <Route path="/da-luu" element={<ProtectedRoute><SavedPage /></ProtectedRoute>} />
           {/* Chức năng mới 2 (TV3): theo dõi từ khóa + bản tin của tôi */}
