@@ -1,39 +1,47 @@
-import { useParams, Link } from 'react-router-dom';
-import DOMPurify from 'dompurify';
 import { getArticle, getFeed } from '../services/rss';
 import { formatFullDate } from '../services/format';
 import { useParams, useSearchParams, Link } from 'react-router-dom';
-import { getArticle, timeAgo } from '../services/rss';
 import { getCategory } from '../config/categories';
 import { useAsync } from '../hooks/useAsync';
+import DOMPurify from 'dompurify';
+
 import ArticleToolbar from '../components/article/ArticleToolbar';
 import ListenPlayer from '../components/article/ListenPlayer';
 import ArticleSidebar from '../components/article/ArticleSidebar';
 import RelatedArticles from '../components/article/RelatedArticles';
+
 import '../css/ArticlePage.css';
 
 export default function ArticlePage() {
-    // 1. Lấy thông tin từ url
+    // Lấy ID từ đường dẫn
+    const params = useParams();
+    const [searchParams] = useSearchParams();
+
+    const id =
+        params.id ||
+        params.articleSlug?.match(/-(\d+)\.htm$/)?.[1] ||
+        '';
+
+    // Lấy chuyên mục từ ?c=the-gioi
+    const slug =
+        searchParams.get('c') ||
+        params.categorySlug ||
+        '';
+
+    console.log('Article ID:', id);
+    console.log('Category:', slug);
+
+    // Lấy dữ liệu bài viết
     const {
-        categorySlug = '',
-        articleSlug = '',
-        id: oldId = '',
-    } = useParams<{
-        categorySlug: string;
-        articleSlug: string;
-        id: string;
-    }>();
-
-    // Lấy ID từ URL dạng: /giao-duc/ten-bai-viet-20261031115322956.htm
-    const id = articleSlug.match(/-(\d+)\.htm$/)?.[1] || oldId;
-
-    // Chuyên mục lấy từ URL
-    const slug = categorySlug;
-
-    // 2. Lấy dữ liệu
-    const { data: article, loading, error } = useAsync(
-        () => (id ? getArticle(id, slug) : Promise.resolve(null)),
-        [id, slug]);
+        data: article,
+        loading,
+        error
+    } = useAsync(
+        () => id
+            ? getArticle(id, slug)
+            : Promise.resolve(null),
+        [id, slug]
+    );
 
     // Feed cùng chuyên mục dùng cho cột phải và "Tin liên quan".
     // Chuyên mục lạ (không có trong categories.ts) thì dùng feed trang chủ.
