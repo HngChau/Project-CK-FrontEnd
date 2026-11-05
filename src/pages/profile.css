@@ -1,8 +1,8 @@
 .acc {
     display: grid;
-    grid-template-columns: 260px minmax(0, 1fr);
-    gap: 40px;
-    max-width: 960px;
+    grid-template-columns: 250px minmax(0, 680px);
+    gap: 60px;
+    max-width: none;
     margin: 0 auto;
     padding-top: 16px;
 }
@@ -12,6 +12,8 @@
     flex-direction: column;
     gap: 2px;
     align-self: start;
+    position: sticky;
+    top: 16px;
 }
 
 .acc-nav-link {
@@ -294,5 +296,201 @@
     .acc-title {
         margin-top: 28px;
         font-size: 1.5rem;
+    }
+}
+
+/*Thông tin cá nhân*/
+.acc-empty {
+    color: var(--muted);
+}
+
+.pi-radios-label {
+    display: block;
+    margin-bottom: 6px;
+    font-size: 0.78rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    color: var(--muted);
+}
+
+.pi-radios {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    min-height: 42px;
+    padding-right: 12px;
+}
+
+.pi-radio {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+}
+
+.pi-radio span {
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    color: var(--muted);
+}
+
+.pi-radio input {
+    width: 16px;
+    height: 16px;
+    margin: 0;
+    accent-color: var(--green);
+    cursor: pointer;
+}
+
+.acc-profile .acc-edit .auth-field label {
+    text-transform: uppercase;
+    font-size: 0.85rem;
+}
+
+.acc-profile .acc-edit .auth-field input {
+    height: 52px;
+    padding-left: 24px;
+    font-size: 1.05rem;
+    font-weight: 600;
+    border-radius: 6px;
+    border-color: var(--ink);
+    background: #fff;
+}
+
+.acc-profile .acc-edit .auth-count {
+    height: 52px;
+    padding-right: 20px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--muted);
+}
+
+.acc-profile .acc-btn {
+    height: 52px;
+    background: #fff;
+}
+
+.acc-profile .acc-btn-primary {
+    background: var(--green);
+}
+
+.acc-profile .acc-btn:disabled {
+    background: #efefef;
+    border-color: #efefef;
+    color: #c4c4c4;
+}
+
+.acc-hint {
+    margin: 12px 0 0 30px;
+    font-size: 0.88rem;
+    line-height: 1.45;
+    color: var(--muted);
+}
+
+.acc-hint strong {
+    font-weight: 700;
+    color: #6b6b6b;
+}
+
+.acc-links {
+    margin-top: 28px;
+}
+
+.acc-links-title {
+    display: block;
+    margin-bottom: 14px;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    color: var(--muted);
+}
+
+.acc-links-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    background: #fafafa;
+    border-radius: 8px;
+}
+
+.acc-link-item {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 0 24px;
+    height: 72px;
+}
+
+.acc-link-item + .acc-link-item::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 24px;
+    right: 24px;
+    border-top: 1px solid var(--line);
+}
+
+.acc-link-logo {
+    display: inline-flex;
+    flex-shrink: 0;
+    width: 27px;
+    height: 27px;
+}
+
+.acc-link-logo img,
+.acc-link-logo svg {
+    width: 27px;
+    height: 27px;
+    object-fit: contain;
+}
+
+.acc-link-name {
+    flex: 1;
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--muted);
+}
+
+.acc-link-item.is-linked .acc-link-name {
+    color: var(--ink);
+}
+
+.acc-link-btn {
+    padding: 3px 0;
+    border: 0;
+    background: none;
+    font: inherit;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--green);
+    cursor: pointer;
+}
+
+.acc-link-btn:hover {
+    text-decoration: underline;
+}
+
+.acc-links-note {
+    margin: 15px 0 0;
+    font-size: 0.88rem;
+    color: var(--ink);
+}
+
+@media (max-width: 800px) {
+    .acc-link-item {
+        gap: 11px;
+        padding: 0 12px;
+        height: 54px;
+    }
+    .acc-link-item + .acc-link-item::before {
+        left: 12px;
+        right: 12px;
+    }
+    .acc-link-logo,
+    .acc-link-logo img,
+    .acc-link-logo svg {
+        width: 24px;
+        height: 24px;
     }
 }
