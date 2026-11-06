@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import type { FormEvent, ReactNode } from 'react';
-import { NavLink, useNavigate } from 'react-router-dom';
+import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { getInitials } from '../components/UserMenu';
 import { useAuth } from '../context/AuthContext';
+import UserCommentActivity from '../components/UserCommentActivity';
 import {
     AuthError,
     NAME_MAX,
@@ -401,6 +402,8 @@ type EditingField = 'name' | 'fullname' |'email' | 'password' | InfoField | null
 export default function AccountPage() {
     const { user, logout, updateName, updateEmail, changePassword } = useAuth();
     const navigate = useNavigate();
+    const location = useLocation();
+    const isCommentTab = location.pathname === '/hoat-dong-binh-luan';
 
     const [editing, setEditing] = useState<EditingField>(null);
     const [notice, setNotice] = useState('');
@@ -572,27 +575,34 @@ export default function AccountPage() {
             </aside>
 
             <div className="acc-main">
-                {notice && (
-                    <p className="auth-success" role="status">
-                        {notice}
-                    </p>
-                )}
+                {isCommentTab ? ( /* tab Hoạt động bình luận */
+                    <>
+                        <h1 className="acc-title">Hoạt động bình luận</h1>
+                        <UserCommentActivity />
+                    </>
+                ) : (
+                    <>
+                        {notice && (
+                            <p className="auth-success" role="status">
+                                {notice}
+                            </p>
+                        )}
 
-                <section className="acc-profile">
-                    <div className="acc-avatar-wrap">
+                        <section className="acc-profile">
+                            <div className="acc-avatar-wrap">
                         <span className="acc-avatar" aria-hidden="true">
                             {getInitials(user.name)}
                         </span>
-                        <button
-                            type="button"
-                            className="acc-camera"
-                            disabled
-                            title="Chưa hỗ trợ trong bản demo"
-                            aria-label="Đổi ảnh đại diện"
-                        >
-                            {ICONS.camera}
-                        </button>
-                    </div>
+                                <button
+                                    type="button"
+                                    className="acc-camera"
+                                    disabled
+                                    title="Chưa hỗ trợ trong bản demo"
+                                    aria-label="Đổi ảnh đại diện"
+                                >
+                                    {ICONS.camera}
+                                </button>
+                            </div>
 
                     <div className="acc-profile-body">
                         {editing === 'name' ? (
@@ -626,25 +636,25 @@ export default function AccountPage() {
                                         <span className={`auth-count${nameTooLong ? ' is-over' : ''}`}>
                                             {name.length}/{NAME_MAX}
                                         </span>
+                                            </div>
+                                            {nameError && <span className="auth-error">{nameError}</span>}
+                                        </div>
+                                    </Editor>
+                                ) : (
+                                    <div className="acc-line">
+                                        <div className="acc-text">
+                                            <span className="acc-label">Tên hiển thị</span>
+                                            <span className="acc-name">{user.name}</span>
+                                        </div>
+                                        <button type="button" className="acc-edit-link" onClick={() => startEdit('name')}>
+                                            Chỉnh sửa
+                                        </button>
                                     </div>
-                                    {nameError && <span className="auth-error">{nameError}</span>}
-                                </div>
-                            </Editor>
-                        ) : (
-                            <div className="acc-line">
-                                <div className="acc-text">
-                                    <span className="acc-label">Tên hiển thị</span>
-                                    <span className="acc-name">{user.name}</span>
-                                </div>
-                                <button type="button" className="acc-edit-link" onClick={() => startEdit('name')}>
-                                    Chỉnh sửa
-                                </button>
+                                )}
                             </div>
-                        )}
-                    </div>
-                </section>
+                        </section>
 
-                <h1 className="acc-title">Quản lý tài khoản</h1>
+                        <h1 className="acc-title">Quản lý tài khoản</h1>
 
                 <AccountRow
                     icon={ICONS.mail}

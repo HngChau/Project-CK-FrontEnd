@@ -5,6 +5,9 @@ import { getCategory } from '../config/categories';
 import { useAsync } from '../hooks/useAsync';
 import DOMPurify from 'dompurify';
 
+import CommentSection from '../components/article/CommentSection';
+import ArticleTags from '../components/article/ArticleTags';
+import { extractTags } from '../services/tags';
 import ArticleToolbar from '../components/article/ArticleToolbar';
 import ListenPlayer from '../components/article/ListenPlayer';
 import ArticleSidebar from '../components/article/ArticleSidebar';
@@ -119,6 +122,8 @@ export default function ArticlePage() {
     const featured = others[0];
     const popular = others.slice(1, 6);
     const related = others.slice(6, 10);
+    // Tags gợi ý từ nội dung bài (RSS không có tag)
+    const tags = extractTags(plainText);
 
     // 7. GIAO DIỆN
     return (
@@ -180,6 +185,8 @@ export default function ArticlePage() {
                         Báo Dân trí
                     </a>
                 </div>
+                <CommentSection articleId={article.id} articleTitle={article.title} />
+                <ArticleTags tags={tags} />
                 <RelatedArticles items={related} />
             </article>
             <ArticleSidebar featured={featured} items={popular} categoryName={categoryName} />

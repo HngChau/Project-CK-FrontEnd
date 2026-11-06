@@ -501,3 +501,200 @@
         display: block;
     }
 }
+
+/* ---------- Bình luận ---------- */
+.art-comments {
+    margin-top: 40px;
+    padding-top: 24px;
+    border-top: 1px solid #222;
+}
+
+.art-comments h2 {
+    margin: 0 0 18px;
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--green);
+}
+
+.art-comment-form {
+    padding: 24px 30px 20px;
+    background: #f5f5f5;
+}
+
+.art-comment-form:focus-within {
+    box-shadow: inset 0 0 0 2px var(--green);
+}
+
+.art-comment-form textarea {
+    display: block;
+    width: 100%;
+    min-height: 72px;
+    padding: 0;
+    border: 0;
+    outline: 0;
+    resize: vertical;
+    background: transparent;
+    font: inherit;
+    font-size: 17px;
+    color: #333;
+}
+
+.art-comment-form textarea::placeholder {
+    color: #666;
+}
+
+.art-comment-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 14px;
+    margin-top: 10px;
+}
+
+.art-comment-count {
+    font-size: 12px;
+    color: #999;
+}
+
+.art-comment-form button[type="submit"],
+.art-comment-login button {
+    min-width: 96px;
+    padding: 10px 24px;
+    border: 0;
+    border-radius: 999px;
+    background: var(--green);
+    color: #fff;
+    font-weight: 700;
+}
+
+.art-comment-form button[type="submit"]:not(:disabled):hover,
+.art-comment-login button:hover {
+    background: var(--green-dark);
+}
+
+.art-comment-form button[type="submit"]:disabled {
+    background: #d9d9d9;
+    cursor: not-allowed;
+}
+
+.art-comment-login {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 16px;
+}
+
+.art-comment-login p {
+    margin: 0;
+    font-size: 16px;
+    color: #555;
+}
+
+.art-comment-ok {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 16px 0 0;
+    padding: 10px 18px;
+    border-radius: 999px;
+    background: #f3f8f5;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--green);
+}
+
+.art-comment-list {
+    margin: 24px 0 0;
+    padding: 0;
+    list-style: none;
+}
+
+.art-comment-list li {
+    display: flex;
+    gap: 14px;
+    padding: 16px 0;
+    border-bottom: 1px solid #eee;
+}
+
+.art-comment-avatar {
+    display: grid;
+    place-items: center;
+    flex: none;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: #9aa5a1;
+    color: #fff;
+    font-weight: 700;
+}
+
+.art-comment-body {
+    flex: 1;
+    min-width: 0;
+}
+
+.art-comment-head {
+    display: flex;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: 4px 10px;
+}
+
+.art-comment-head strong {
+    font-size: 16px;
+}
+
+.art-comment-head time {
+    font-size: 12px;
+    color: #888;
+}
+
+.art-comment-body p {
+    margin: 6px 0 8px;
+    font-size: 16px;
+    line-height: 1.6;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}
+
+/* ---------- Tags ---------- */
+.art-tags {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+    margin-top: 32px;
+}
+
+.art-tags-label {
+    font-size: 15px;
+    font-weight: 700;
+    color: #999;
+}
+
+.art-tags a {
+    padding: 9px 20px;
+    border-radius: 999px;
+    background: #f5f5f5;
+    font-size: 16px;
+    color: #111;
+}
+
+.art-tags a:hover {
+    background: var(--green);
+    color: #fff;
+}
+
+@media (max-width: 600px) {
+    .art-comment-form {
+        padding: 16px;
+    }
+}
+
+@media print {
+    .art-comments,
+    .art-tags {
+        display: none !important;
+    }
+}
