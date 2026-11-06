@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import type { FormEvent, ReactNode } from 'react';
-import { NavLink, useNavigate } from 'react-router-dom';
+import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { getInitials } from '../components/UserMenu';
 import { useAuth } from '../context/AuthContext';
+import UserCommentActivity from '../components/UserCommentActivity';
 import {
     AuthError,
     NAME_MAX,
@@ -242,6 +243,8 @@ type EditingField = 'name' | 'email' | 'password' | null;
 export default function AccountPage() {
     const { user, logout, updateName, updateEmail, changePassword } = useAuth();
     const navigate = useNavigate();
+    const location = useLocation();
+    const isCommentTab = location.pathname === '/hoat-dong-binh-luan';
 
     const [editing, setEditing] = useState<EditingField>(null);
     const [notice, setNotice] = useState('');
@@ -375,168 +378,178 @@ export default function AccountPage() {
             </aside>
 
             <div className="acc-main">
-                {notice && (
-                    <p className="auth-success" role="status">
-                        {notice}
-                    </p>
-                )}
+                {isCommentTab ? ( /* tab Hoạt động bình luận */
+                    <>
+                        <h1 className="acc-title">Hoạt động bình luận</h1>
+                        <UserCommentActivity />
+                    </>
+                ) : (
+                    <>
+                        {notice && (
+                            <p className="auth-success" role="status">
+                                {notice}
+                            </p>
+                        )}
 
-                <section className="acc-profile">
-                    <div className="acc-avatar-wrap">
+                        <section className="acc-profile">
+                            <div className="acc-avatar-wrap">
                         <span className="acc-avatar" aria-hidden="true">
                             {getInitials(user.name)}
                         </span>
-                        <button
-                            type="button"
-                            className="acc-camera"
-                            disabled
-                            title="Chưa hỗ trợ trong bản demo"
-                            aria-label="Đổi ảnh đại diện"
-                        >
-                            {ICONS.camera}
-                        </button>
-                    </div>
-
-                    <div className="acc-profile-body">
-                        {editing === 'name' ? (
-                            <Editor
-                                onSave={saveName}
-                                onCancel={cancel}
-                                saveDisabled={!name.trim() || nameTooLong || name.trim() === user.name}
-                            >
-                                <div className="auth-field">
-                                    <label htmlFor="acc-name">Tên hiển thị</label>
-                                    <div className="auth-password">
-                                        <input
-                                            id="acc-name"
-                                            type="text"
-                                            placeholder="Nhập họ và tên"
-                                            autoComplete="name"
-                                            autoFocus
-                                            value={name}
-                                            aria-invalid={Boolean(nameError)}
-                                            onChange={(e) => handleNameChange(e.target.value)}
-                                        />
-                                        <span className={`auth-count${nameTooLong ? ' is-over' : ''}`}>
-                                            {name.length}/{NAME_MAX}
-                                        </span>
-                                    </div>
-                                    {nameError && <span className="auth-error">{nameError}</span>}
-                                </div>
-                            </Editor>
-                        ) : (
-                            <div className="acc-line">
-                                <div className="acc-text">
-                                    <span className="acc-label">Tên hiển thị</span>
-                                    <span className="acc-name">{user.name}</span>
-                                </div>
-                                <button type="button" className="acc-edit-link" onClick={() => startEdit('name')}>
-                                    Chỉnh sửa
+                                <button
+                                    type="button"
+                                    className="acc-camera"
+                                    disabled
+                                    title="Chưa hỗ trợ trong bản demo"
+                                    aria-label="Đổi ảnh đại diện"
+                                >
+                                    {ICONS.camera}
                                 </button>
                             </div>
-                        )}
-                    </div>
-                </section>
 
-                <h1 className="acc-title">Quản lý tài khoản</h1>
+                            <div className="acc-profile-body">
+                                {editing === 'name' ? (
+                                    <Editor
+                                        onSave={saveName}
+                                        onCancel={cancel}
+                                        saveDisabled={!name.trim() || nameTooLong || name.trim() === user.name}
+                                    >
+                                        <div className="auth-field">
+                                            <label htmlFor="acc-name">Tên hiển thị</label>
+                                            <div className="auth-password">
+                                                <input
+                                                    id="acc-name"
+                                                    type="text"
+                                                    placeholder="Nhập họ và tên"
+                                                    autoComplete="name"
+                                                    autoFocus
+                                                    value={name}
+                                                    aria-invalid={Boolean(nameError)}
+                                                    onChange={(e) => handleNameChange(e.target.value)}
+                                                />
+                                                <span className={`auth-count${nameTooLong ? ' is-over' : ''}`}>
+                                            {name.length}/{NAME_MAX}
+                                        </span>
+                                            </div>
+                                            {nameError && <span className="auth-error">{nameError}</span>}
+                                        </div>
+                                    </Editor>
+                                ) : (
+                                    <div className="acc-line">
+                                        <div className="acc-text">
+                                            <span className="acc-label">Tên hiển thị</span>
+                                            <span className="acc-name">{user.name}</span>
+                                        </div>
+                                        <button type="button" className="acc-edit-link" onClick={() => startEdit('name')}>
+                                            Chỉnh sửa
+                                        </button>
+                                    </div>
+                                )}
+                            </div>
+                        </section>
 
-                <AccountRow
-                    icon={ICONS.mail}
-                    label="Email"
-                    value={user.email}
-                    editLabel="Đổi email"
-                    editing={editing === 'email'}
-                    onEdit={() => startEdit('email')}
-                >
-                    <Editor
-                        onSave={saveEmail}
-                        onCancel={cancel}
-                        saving={emailSaving}
-                        cancelLabel="Hủy bỏ"
-                        saveLabel="Xác nhận"
-                        saveDisabled={
-                            !email.trim() ||
-                            Boolean(validateEmail(email)) ||
-                            normalizeEmail(email) === user.email ||
-                            !emailPw
-                        }
-                    >
-                        <div className="auth-field">
-                            <label htmlFor="acc-email">
-                                Nhập email mới <span className="auth-req">*</span>
-                            </label>
-                            <input
-                                id="acc-email"
-                                type="email"
-                                placeholder="Nhập Email"
-                                autoComplete="email"
-                                autoFocus
-                                value={email}
-                                aria-invalid={Boolean(emailError)}
-                                onChange={(e) => handleEmailChange(e.target.value)}
-                            />
-                            {emailError && <span className="auth-error">{emailError}</span>}
-                        </div>
-                        <PasswordInput
-                            id="acc-email-pw"
-                            label="Nhập mật khẩu hiện tại để xác thực"
-                            placeholder="Nhập mật khẩu hiện tại"
-                            autoComplete="current-password"
-                            value={emailPw}
-                            error={emailPwError}
-                            onChange={handleEmailPwChange}
-                        />
-                    </Editor>
-                </AccountRow>
+                        <h1 className="acc-title">Quản lý tài khoản</h1>
 
-                <AccountRow
-                    icon={ICONS.key}
-                    label="Mật khẩu"
-                    value={<span className="acc-dots">••••••••••</span>}
-                    editLabel="Đổi mật khẩu"
-                    editing={editing === 'password'}
-                    onEdit={() => startEdit('password')}
-                >
-                    <Editor
-                        onSave={savePassword}
-                        onCancel={cancel}
-                        saving={pwSaving}
-                        saveDisabled={!pw.current || !pw.next || !pw.confirm}
-                    >
-                        {pwErrors.form && (
-                            <p className="auth-alert" role="alert">
-                                {pwErrors.form}
-                            </p>
-                        )}
-                        <PasswordInput
-                            id="acc-pw-current"
-                            label="Mật khẩu hiện tại"
-                            placeholder="Nhập mật khẩu hiện tại"
-                            autoComplete="current-password"
-                            value={pw.current}
-                            error={pwErrors.current}
-                            onChange={(v) => handlePwChange('current', v)}
-                        />
-                        <PasswordInput
-                            id="acc-pw-next"
-                            label="Mật khẩu mới"
-                            placeholder="Nhập mật khẩu mới (6 - 29 ký tự)"
-                            autoComplete="new-password"
-                            value={pw.next}
-                            error={pwErrors.next}
-                            onChange={(v) => handlePwChange('next', v)}
-                        />
-                        <PasswordInput
-                            id="acc-pw-confirm"
-                            label="Nhập lại mật khẩu mới"
-                            placeholder="Nhập lại mật khẩu mới"
-                            autoComplete="new-password"
-                            value={pw.confirm}
-                            error={pwErrors.confirm}
-                            onChange={(v) => handlePwChange('confirm', v)}
-                        />
-                    </Editor>
-                </AccountRow>
+                        <AccountRow
+                            icon={ICONS.mail}
+                            label="Email"
+                            value={user.email}
+                            editLabel="Đổi email"
+                            editing={editing === 'email'}
+                            onEdit={() => startEdit('email')}
+                        >
+                            <Editor
+                                onSave={saveEmail}
+                                onCancel={cancel}
+                                saving={emailSaving}
+                                cancelLabel="Hủy bỏ"
+                                saveLabel="Xác nhận"
+                                saveDisabled={
+                                    !email.trim() ||
+                                    Boolean(validateEmail(email)) ||
+                                    normalizeEmail(email) === user.email ||
+                                    !emailPw
+                                }
+                            >
+                                <div className="auth-field">
+                                    <label htmlFor="acc-email">
+                                        Nhập email mới <span className="auth-req">*</span>
+                                    </label>
+                                    <input
+                                        id="acc-email"
+                                        type="email"
+                                        placeholder="Nhập Email"
+                                        autoComplete="email"
+                                        autoFocus
+                                        value={email}
+                                        aria-invalid={Boolean(emailError)}
+                                        onChange={(e) => handleEmailChange(e.target.value)}
+                                    />
+                                    {emailError && <span className="auth-error">{emailError}</span>}
+                                </div>
+                                <PasswordInput
+                                    id="acc-email-pw"
+                                    label="Nhập mật khẩu hiện tại để xác thực"
+                                    placeholder="Nhập mật khẩu hiện tại"
+                                    autoComplete="current-password"
+                                    value={emailPw}
+                                    error={emailPwError}
+                                    onChange={handleEmailPwChange}
+                                />
+                            </Editor>
+                        </AccountRow>
+
+                        <AccountRow
+                            icon={ICONS.key}
+                            label="Mật khẩu"
+                            value={<span className="acc-dots">••••••••••</span>}
+                            editLabel="Đổi mật khẩu"
+                            editing={editing === 'password'}
+                            onEdit={() => startEdit('password')}
+                        >
+                            <Editor
+                                onSave={savePassword}
+                                onCancel={cancel}
+                                saving={pwSaving}
+                                saveDisabled={!pw.current || !pw.next || !pw.confirm}
+                            >
+                                {pwErrors.form && (
+                                    <p className="auth-alert" role="alert">
+                                        {pwErrors.form}
+                                    </p>
+                                )}
+                                <PasswordInput
+                                    id="acc-pw-current"
+                                    label="Mật khẩu hiện tại"
+                                    placeholder="Nhập mật khẩu hiện tại"
+                                    autoComplete="current-password"
+                                    value={pw.current}
+                                    error={pwErrors.current}
+                                    onChange={(v) => handlePwChange('current', v)}
+                                />
+                                <PasswordInput
+                                    id="acc-pw-next"
+                                    label="Mật khẩu mới"
+                                    placeholder="Nhập mật khẩu mới (6 - 29 ký tự)"
+                                    autoComplete="new-password"
+                                    value={pw.next}
+                                    error={pwErrors.next}
+                                    onChange={(v) => handlePwChange('next', v)}
+                                />
+                                <PasswordInput
+                                    id="acc-pw-confirm"
+                                    label="Nhập lại mật khẩu mới"
+                                    placeholder="Nhập lại mật khẩu mới"
+                                    autoComplete="new-password"
+                                    value={pw.confirm}
+                                    error={pwErrors.confirm}
+                                    onChange={(v) => handlePwChange('confirm', v)}
+                                />
+                            </Editor>
+                        </AccountRow>
+                    </>
+                )} {
+            }
             </div>
         </div>
     );

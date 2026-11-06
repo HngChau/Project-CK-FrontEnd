@@ -296,3 +296,54 @@
         font-size: 1.5rem;
     }
 }
+
+/* ---------- Hoạt động bình luận ---------- */
+.ua-empty {
+    padding: 24px 0;
+    color: #777;
+}
+
+.ua-count {
+    margin: 0 0 12px;
+    font-size: 14px;
+    color: #777;
+}
+
+.ua-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.ua-list li {
+    padding: 16px 0;
+    border-bottom: 1px solid #eee;
+}
+
+.ua-article {
+    font-size: 16px;
+    font-weight: 700;
+    line-height: 1.4;
+    color: var(--green);
+}
+
+.ua-article:hover {
+    text-decoration: underline;
+}
+
+.ua-content {
+    margin: 6px 0 8px;
+    font-size: 15px;
+    line-height: 1.6;
+    color: #333;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}
+
+.ua-meta {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    font-size: 12px;
+    color: #888;
+}

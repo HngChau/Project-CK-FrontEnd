@@ -39,6 +39,7 @@ export default function App() {
           <Route path="/ban-tin-cua-toi" element={<ProtectedRoute><MyFeedPage /></ProtectedRoute>} />
           <Route path="*" element={<p>Không tìm thấy trang.</p>} />
           <Route path="/tai-khoan" element={<ProtectedRoute><AccountPage /></ProtectedRoute>} />
+          <Route path="/hoat-dong-binh-luan" element={<ProtectedRoute><AccountPage /></ProtectedRoute>} />
         </Routes>
       </main>
       <Footer />
