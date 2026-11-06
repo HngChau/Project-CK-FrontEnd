@@ -25,7 +25,7 @@ const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 export const normalizeEmail = (email: string): string => email.trim().toLowerCase();
 export const PASSWORD_MIN = 6;
 export const PASSWORD_MAX = 20;
-export const NAME_MAX = 50;
+export const NAME_MAX = 35;
 
 export function validatePassword(password: string): string {
     if (!password) return 'Vui lòng nhập mật khẩu';
@@ -52,7 +52,7 @@ export function validateLoginForm({email, password}: LoginInput): FormErrors {
 }
 
 export function validateName(name: string): string {
-    if (name.trim().length > NAME_MAX) return 'Họ và tên nhập quá giới hạn ký tự cho phép';
+    if (name.trim().length > NAME_MAX) return 'Tên hiển thị nhập quá giới hạn ký tự cho phép';
     return '';
 }
 
