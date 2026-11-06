@@ -1,6 +1,7 @@
+import { useEffect } from 'react';
 import { getArticle, getFeed } from '../services/rss';
 import { formatFullDate } from '../services/format';
-import { useParams, useSearchParams, Link } from 'react-router-dom';
+import { useParams, useSearchParams, useLocation, Link } from 'react-router-dom';
 import { getCategory } from '../config/categories';
 import { useAsync } from '../hooks/useAsync';
 import DOMPurify from 'dompurify';
@@ -12,7 +13,8 @@ import ArticleToolbar from '../components/article/ArticleToolbar';
 import ListenPlayer from '../components/article/ListenPlayer';
 import ArticleSidebar from '../components/article/ArticleSidebar';
 import RelatedArticles from '../components/article/RelatedArticles';
-
+import { useAuth } from '../context/AuthContext';
+import { recordView } from '../services/viewed';
 import '../css/ArticlePage.css';
 
 export default function ArticlePage() {
@@ -50,6 +52,24 @@ export default function ArticlePage() {
     // Chuyên mục lạ (không có trong categories.ts) thì dùng feed trang chủ.
     const feedSlug = getCategory(slug) ? slug : 'trang-chu';
     const feed = useAsync(() => getFeed(feedSlug), [feedSlug]);
+
+    // Ghi nhận bài đã xem cho người dùng đang đăng nhập (hiện ở trang "Tin đã xem")
+    const { user } = useAuth();
+    const { pathname, search } = useLocation();
+
+    useEffect(() => {
+        if (!user || !article) return;
+        const cat = getCategory(article.category);
+        recordView(user.email, {
+            id: article.id,
+            title: article.title,
+            to: pathname + search,
+            image: article.image || undefined,
+            category: cat && cat.slug !== 'trang-chu' ? cat.name : undefined,
+            article: { ...article, content: '' },
+        });
+        // Chỉ ghi lại khi đổi người dùng hoặc đổi bài, không ghi lại mỗi lần render
+    }, [user?.email, article?.id]);
 
     if (loading) {
         return <div className="status">Đang tải bài viết...</div>;

@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import type { FormEvent, ReactNode } from 'react';
-import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { getInitials } from '../components/UserMenu';
 import { useAuth } from '../context/AuthContext';
 import UserCommentActivity from '../components/UserCommentActivity';
@@ -15,6 +14,7 @@ import {
 import type { FormErrors } from '../services/auth';
 import './auth.css';
 import './profile.css';
+import AccountNav from "../components/AccountNav";
 
 function Icon({ children, size = 26 }: { children: ReactNode; size?: number }) {
     return (
@@ -123,14 +123,6 @@ const ICONS = {
         </Icon>
     ),
 };
-
-const NAV_ITEMS = [
-    { to: '/tai-khoan', label: 'Thông tin tài khoản', icon: ICONS.user },
-    { to: '/hoat-dong-binh-luan', label: 'Hoạt động bình luận', icon: ICONS.comment },
-    { to: '/ban-tin-cua-toi', label: 'Bảng tin của bạn', icon: ICONS.board },
-    { to: '/tin-da-xem', label: 'Tin đã xem', icon: ICONS.viewed },
-    { to: '/da-luu', label: 'Tin đã lưu', icon: ICONS.saved },
-];
 
 type PwField = 'current' | 'next' | 'confirm';
 type PwValues = Record<PwField, string>;
@@ -400,9 +392,7 @@ function AccountRow({ icon, label, value, editLabel = 'Chỉnh sửa', editing, 
 type EditingField = 'name' | 'fullname' |'email' | 'password' | InfoField | null;
 
 export default function AccountPage() {
-    const { user, logout, updateName, updateEmail, changePassword } = useAuth();
-    const navigate = useNavigate();
-    const location = useLocation();
+    const { user, updateName, updateEmail, changePassword } = useAuth();
     const isCommentTab = location.pathname === '/hoat-dong-binh-luan';
 
     const [editing, setEditing] = useState<EditingField>(null);
@@ -447,11 +437,6 @@ export default function AccountPage() {
     };
 
     const cancel = () => setEditing(null);
-
-    const handleLogout = () => {
-        navigate('/', { replace: true });
-        logout();
-    };
 
     const nameTooLong = name.trim().length > NAME_MAX;
 
@@ -560,19 +545,7 @@ export default function AccountPage() {
 
     return (
         <div className="acc">
-            <aside className="acc-nav" aria-label="Tài khoản">
-                {NAV_ITEMS.map((item) => (
-                    <NavLink key={item.to} to={item.to} end className="acc-nav-link">
-                        {item.icon}
-                        <span>{item.label}</span>
-                    </NavLink>
-                ))}
-                <hr className="acc-nav-divider" />
-                <button type="button" className="acc-nav-link" onClick={handleLogout}>
-                    {ICONS.logout}
-                    <span>Đăng xuất</span>
-                </button>
-            </aside>
+            <AccountNav/>
 
             <div className="acc-main">
                 {isCommentTab ? ( /* tab Hoạt động bình luận */

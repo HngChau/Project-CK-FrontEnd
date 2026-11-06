@@ -544,3 +544,176 @@
         height: 24px;
     }
 }
+
+/* Tin đã xem */
+.vw-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 16px;
+}
+
+.vw-title {
+    margin-top: 0;
+}
+
+.vw-list {
+    margin: 12px 0 0;
+    padding: 0;
+    list-style: none;
+}
+
+.vw-item {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    padding: 18px 0;
+    border-bottom: 1px solid var(--line);
+}
+
+.vw-thumb {
+    flex-shrink: 0;
+    width: 140px;
+    aspect-ratio: 3 / 2;
+    overflow: hidden;
+    border-radius: 6px;
+    background: var(--soft);
+}
+
+.vw-thumb img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.vw-thumb span {
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+
+.vw-info {
+    flex: 1;
+    min-width: 0;
+    align-self: stretch;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 4px 0;
+}
+
+.vw-name {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    font-size: 1.05rem;
+    font-weight: 700;
+    line-height: 1.4;
+    color: var(--ink);
+    text-decoration: none;
+}
+
+.vw-name:hover {
+    color: var(--green);
+}
+
+.vw-meta {
+    font-size: 0.85rem;
+    color: var(--muted);
+}
+
+.vw-empty {
+    padding: 56px 0;
+    text-align: center;
+    color: var(--muted);
+}
+
+.vw-empty-link {
+    color: var(--green);
+    font-weight: 600;
+}
+
+@media (max-width: 800px) {
+    .vw-thumb {
+        width: 96px;
+    }
+}
+
+.vw-group {
+    margin-top: 28px;
+}
+
+.vw-group-title {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin: 0;
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--ink);
+}
+
+.vw-group-title::after {
+    content: '';
+    flex: 1;
+    border-top: 1px solid var(--line);
+}
+
+.vw-group .vw-list {
+    margin-top: 8px;
+}
+
+.vw-item {
+    border-bottom: 0;
+}
+.vw-foot {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+}
+
+.vw-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.vw-action {
+    display: grid;
+    place-items: center;
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: none;
+    color: #3a3f47;
+    cursor: pointer;
+}
+
+.vw-action:hover {
+    background: var(--soft);
+    color: var(--ink);
+}
+
+.vw-action.is-saved {
+    color: var(--green);
+}
+
+.vw-action {
+    width: 32px;
+    height: 32px;
+}
+
+.vw-action svg {
+    width: 20px;
+    height: 20px;
+}
+
+.vw-actions {
+    gap: 8px;
+}
