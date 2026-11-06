@@ -348,6 +348,7 @@
     gap: 14px;
     font-size: 12px;
     color: #888;
+}
 /*Thông tin cá nhân*/
 .acc-empty {
     color: var(--muted);

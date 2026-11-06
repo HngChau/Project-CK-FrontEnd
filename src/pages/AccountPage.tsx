@@ -910,6 +910,8 @@ export default function AccountPage() {
                         </div>
                     </Editor>
                 </AccountRow>
+                    </>
+                    )}
             </div>
         </div>
     );
