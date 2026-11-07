@@ -1,49 +1,59 @@
-import { useState } from 'react';
-import type { FormEvent } from 'react';
+import { useMemo } from 'react';
 import { useFollows } from '../hooks/useFollows';
-import { getAllFeeds, removeAccents } from '../services/rss';
 import { useAsync } from '../hooks/useAsync';
+import { getAllFeeds, removeAccents } from '../services/rss';
+import { keywordKey } from '../services/follows';
 import ArticleList from '../components/ArticleList';
-import type { Article } from '../types';
+import KeywordManager from '../components/KeywordManager';
+import type { Article, AsyncState } from '../types';
+import '../css/MyFeedPage.css';
 
-// CHỨC NĂNG MỚI 2 (TV3)
+// giao diện quản lý từ khóa và trang Bản tin của tôi
 export default function MyFeedPage() {
-  const { keywords, add, remove } = useFollows();
-  const [input, setInput] = useState('');
+    const { keywords, add, remove, validate } = useFollows();
 
-  const state = useAsync<Article[]>(async () => {
-    if (!keywords.length) return [];
-    const all = await getAllFeeds();
-    const keys = keywords.map(removeAccents);
-    return all.filter((a) => {
-      const text = removeAccents(a.title + ' ' + a.summary);
-      return keys.some((k) => text.includes(k));
-    });
-  }, [keywords.join('|')]);
+    // Tải tin từ mọi chuyên mục một lần, sau đó lọc ngay trong bộ nhớ khi thêm/xóa từ khóa
+    const feeds = useAsync<Article[]>(() => getAllFeeds(), []);
+    const matched = useMemo<Article[]>(() => {
+        if (!feeds.data || keywords.length === 0) return [];
+        const keys = keywords.map(keywordKey);
+        return feeds.data.filter((a) => {
+            const text = removeAccents(`${a.title} ${a.summary}`);
+            return keys.some((k) => text.includes(k));
+        });
+    }, [feeds.data, keywords]);
 
-  const submit = (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    add(input);
-    setInput('');
-  };
+    const resultState: AsyncState<Article[]> = {
+        data: matched,
+        loading: feeds.loading,
+        error: feeds.error,
+    };
 
-  return (
-    <>
-      <h1>Bản tin của tôi</h1>
-      <form onSubmit={submit} className="search">
-        <input value={input} onChange={(e) => setInput(e.target.value)} placeholder="Theo dõi từ khóa, ví dụ: giá vàng" aria-label="Từ khóa" />
-        <button type="submit">Theo dõi</button>
-      </form>
-      <ul className="chips">
-        {keywords.map((k) => (
-          <li key={k}>
-            {k} <button className="link" onClick={() => remove(k)} aria-label={`Bỏ theo dõi ${k}`}>x</button>
-          </li>
-        ))}
-      </ul>
-      {/* TODO (TV3): badge số tin mới chưa đọc trên menu, đánh dấu đã đọc, tự làm mới mỗi 5 phút,
-          nhóm kết quả theo từ khóa, trang thống kê từ khóa/chuyên mục đọc nhiều */}
-      <ArticleList state={state} empty={keywords.length ? 'Chưa có tin khớp từ khóa.' : 'Thêm từ khóa để bắt đầu theo dõi.'} />
-    </>
-  );
+    return (
+        <div className="myfeed">
+            <header className="myfeed-head">
+                <h1>Bản tin của tôi</h1>
+                <p>Theo dõi từ khóa để xem tin liên quan từ tất cả chuyên mục.</p>
+            </header>
+
+            <KeywordManager keywords={keywords} onAdd={add} onRemove={remove} validate={validate} />
+
+            {keywords.length === 0 ? (
+                <div className="myfeed-empty">
+                    <strong>Bạn chưa theo dõi từ khóa nào</strong>
+                    Nhập từ khóa ở trên hoặc chọn nhanh một gợi ý để bắt đầu nhận tin phù hợp.
+                </div>
+            ) : (
+                <section aria-live="polite">
+                    {!feeds.loading && matched.length > 0 && (
+                        <h2 className="myfeed-subtitle">{matched.length} bài viết phù hợp</h2>
+                    )}
+                    <ArticleList
+                        state={resultState}
+                        empty="Chưa có bài viết nào khớp với các từ khóa bạn đang theo dõi. Hãy thử thêm từ khóa khác."
+                    />
+                </section>
+            )}
+        </div>
+    );
 }
