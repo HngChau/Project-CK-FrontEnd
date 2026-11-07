@@ -19,7 +19,7 @@ h1 { font-size: 1.6rem; margin: 8px 0 16px; }
 
 .header { border-bottom: 3px solid var(--green); background: #fff; position: sticky; top: 0; z-index: 10; }
 .header-top { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; padding-top: 10px; padding-bottom: 10px; }
-.logo { font-size: 1.7rem; font-weight: 800; color: var(--green); letter-spacing: -0.5px; }
+.logo { font-size: 30px; font-weight: 800; color: var(--green); letter-spacing: -0.5px; }
 .search { display: flex; gap: 6px; flex: 1; min-width: 200px; margin-bottom: 12px; }
 .header .search { margin-bottom: 0; }
 .search input { flex: 1; padding: 8px 10px; border: 1px solid var(--line); border-radius: 4px; }
@@ -29,8 +29,24 @@ button { cursor: pointer; font: inherit; }
 .account { display: flex; gap: 12px; font-size: 0.9rem; align-items: center; }
 .link { background: none; border: 0; color: var(--green); padding: 0; }
 .link:hover { text-decoration: underline; }
-.weather { font-size: 0.85rem; color: var(--muted); display: flex; gap: 6px; align-items: center; }
-.weather select { border: 1px solid var(--line); border-radius: 4px; padding: 2px; }
+.weather { font-size: 0.85rem; color: #6b7280; display: inline-flex; gap: 6px; align-items: center; }
+/* .weather select { border: 1px solid var(--line); border-radius: 4px; padding: 2px; } */
+.weather select {appearance: none;
+  -webkit-appearance: none;
+  background-color: #ffffff;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%234b5563' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='m6 9 6 6 6-6'/></svg>");  background-repeat: no-repeat;
+  background-position: right 8px center;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  padding: 4px 24px 4px 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #1f2937;
+  cursor: pointer;
+  outline: none;
+  transition: all 0.2s ease;}
+.weather select:hover { border-color: var(--green); }
+.weather select:focus { border-color: var(--green); box-shadow: 0 0 0 2px rgba(11, 122, 59, 0.15) }
 .nav { display: flex; gap: 4px; overflow-x: auto; padding-bottom: 0; }
 .nav a { padding: 10px 12px; white-space: nowrap; font-weight: 600; font-size: 0.95rem; }
 .nav a.active { color: var(--green); box-shadow: inset 0 -3px 0 var(--green); }
@@ -123,6 +139,7 @@ button { cursor: pointer; font: inherit; }
 .user-dropdown button:hover {
     background: #e0e0e0;
     color: var(--ink);
+}
 /* Chi tết bài báo */
 .article {
   max-width: 800px;
@@ -192,3 +209,21 @@ button { cursor: pointer; font: inherit; }
   color: var(--green);
   font-weight: 600;
 }
+
+
+.site-footer { width: 100%; margin-top: auto; background: #f8fafc; color: #4b5563; font-family: "Segoe UI", Roboto, Arial, sans-serif; border-top: 4px solid #0b7a3b; }
+.footer-main { width: 100%; max-width: 1100px; margin: 0 auto; padding: 45px 16px; display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 35px; }
+.footer-logo { display: inline-block; color: var(--green); font-size: 30px; font-weight: 900; letter-spacing: -1px; margin-bottom: 12px; text-decoration: none; }
+.footer-intro p { color: #4b5563; font-size: 14px; line-height: 1.7; margin: 0; }
+.footer-heading { color: #111827; font-size: 15px; font-weight: 700; margin: 0 0 16px; padding-bottom: 8px; border-bottom: 1px solid #0b7a3b; }
+.footer-list { list-style: none; padding: 0; margin: 0; }
+.footer-list li { margin-bottom: 10px; }
+.footer-list a { display: block; color: #374151; font-size: 14px; text-decoration: none; transition: color 0.2s ease; }
+.footer-list a:hover { color: #0b7a3b; }
+.footer-contact p { color: #4b5563; font-size: 13px; line-height: 1.6; margin: 0 0 10px; }
+.footer-contact strong { color: #111827; }
+.footer-bottom { background: #e5e7eb; border-top: 1px solid #d1d5db; padding: 16px 0; }
+.footer-bottom-inner { width: 100%; max-width: 1100px; margin: 0 auto; padding: 0 16px; display: flex; justify-content: space-between; align-items: center; gap: 15px; flex-wrap: wrap; }
+.footer-bottom-inner p { color: #6b7280; font-size: 12px; margin: 0; }
+
+
