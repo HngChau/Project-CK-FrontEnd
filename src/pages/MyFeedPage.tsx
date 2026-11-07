@@ -7,6 +7,9 @@ import ArticleList from '../components/ArticleList';
 import KeywordManager from '../components/KeywordManager';
 import type { Article, AsyncState } from '../types';
 import '../css/MyFeedPage.css';
+import AccountNav from '../components/AccountNav';
+import './auth.css';
+import './profile.css';
 
 // giao diện quản lý từ khóa và trang Bản tin của tôi
 export default function MyFeedPage() {
@@ -30,6 +33,10 @@ export default function MyFeedPage() {
     };
 
     return (
+        <div className="acc">
+            <AccountNav />
+            <div className="acc-main">
+
         <div className="myfeed">
             <header className="myfeed-head">
                 <h1>Bản tin của tôi</h1>
@@ -54,6 +61,8 @@ export default function MyFeedPage() {
                     />
                 </section>
             )}
+        </div>
+            </div>
         </div>
     );
 }
