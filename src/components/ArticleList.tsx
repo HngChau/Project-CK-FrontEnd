@@ -1,5 +1,6 @@
 import ArticleCard from './ArticleCard';
 import type { Article, AsyncState } from '../types';
+import ArticleSkeleton from './ArticleSkeleton';
 
 interface Props {
   state: AsyncState<Article[]>;
@@ -8,7 +9,8 @@ interface Props {
 
 export default function ArticleList({ state, empty = 'Chưa có bài viết.' }: Props) {
   const { data, loading, error } = state;
-  if (loading) return <p className="status">Đang tải tin...</p>;
+  // if (loading) return <p className="status">Đang tải tin...</p>;
+  if (loading) return <ArticleSkeleton count={12} />;
   if (error) return <p className="status error">Không tải được tin: {error.message}. Thử lại sau ít phút.</p>;
   if (!data?.length) return <p className="status">{empty}</p>;
   return (
