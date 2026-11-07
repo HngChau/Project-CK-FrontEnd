@@ -210,18 +210,61 @@ export async function getFeed(slug: string): Promise<Article[]> {
   }
 }
 
+// Thời điểm đăng dạng số, ngày không hợp lệ tính là 0 để bài đó xuống cuối danh sách
+function publishedTime(a: Article): number {
+  const t = new Date(a.pubDate).getTime();
+  return Number.isNaN(t) ? 0 : t;
+}
 
-
+/**
+ * Gộp tin từ nhiều chuyên mục: bỏ bài mẫu khi RSS lỗi, bỏ bài trùng giữa các chuyên mục
+ * (giữ bản xuất hiện đầu tiên) và sắp xếp bài mới nhất lên đầu
+ */
+export function combineFeeds(lists: Article[][]): Article[] {
+  const seen = new Set<string>();
+  return lists
+      .flat()
+      .filter((a) => !a.id.startsWith('fallback-'))
+      .filter((a) => (seen.has(a.id) ? false : (seen.add(a.id), true)))
+      .sort((a, b) => publishedTime(b) - publishedTime(a));
+}
 
 export async function getAllFeeds(): Promise<Article[]> {
   const results = await Promise.allSettled(
-    CATEGORIES.filter((c) => c.slug !== 'trang-chu').map((c) => getFeed(c.slug))
+      CATEGORIES.filter((c) => c.slug !== 'trang-chu').map((c) => getFeed(c.slug))
   );
-  const seen = new Set<string>();
-  return results
-    .flatMap((r) => (r.status === 'fulfilled' ? r.value : []))
-    .filter((a) => (seen.has(a.id) ? false : (seen.add(a.id), true)))
-    .sort((a, b) => new Date(b.pubDate).getTime() - new Date(a.pubDate).getTime());
+  return combineFeeds(results.flatMap((r) => (r.status === 'fulfilled' ? [r.value] : [])));
+}
+
+// Chuẩn hóa văn bản để so khớp: bỏ dấu, chữ thường, ký tự không phải chữ/số thành khoảng trắng
+export function normalizeForMatch(s: string): string {
+  return ' ' + removeAccents(s).replace(/[^\p{L}\p{N}]+/gu, ' ').trim() + ' ';
+}
+
+// Một bài khớp từ khóa, kèm danh sách từ khóa đã khớp
+export interface KeywordMatch {
+  article: Article;
+  matched: string[];
+}
+
+/**
+ * Lọc bài theo từ khóa trong tiêu đề và mô tả: không phân biệt hoa thường và dấu, khớp theo nguyên từ.
+ * Bài khớp ít nhất một từ khóa là, Kết quả sắp xếp mới nhất lên đầu
+ */
+export function filterByKeywords(articles: Article[], keywords: string[]): KeywordMatch[] {
+  const wanted = keywords
+      .map((keyword) => ({ keyword, key: normalizeForMatch(keyword) }))
+      .filter((k) => k.key.trim() !== '');
+  if (wanted.length === 0) return [];
+
+  const result: KeywordMatch[] = [];
+  for (const article of articles) {
+    // Chuẩn hóa riêng tiêu đề và mô tả
+    const text = normalizeForMatch(article.title) + '|' + normalizeForMatch(article.summary);
+    const matched = wanted.filter((k) => text.includes(k.key)).map((k) => k.keyword);
+    if (matched.length > 0) result.push({ article, matched });
+  }
+  return result.sort((a, b) => publishedTime(b.article) - publishedTime(a.article));
 }
 
 export async function getArticle(id: string, slug?: string | null): Promise<Article | null> {

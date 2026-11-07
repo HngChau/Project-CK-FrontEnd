@@ -172,3 +172,32 @@
         padding: 11px;
     }
 }
+
+/* Kết quả theo từ khóa */
+.myfeed-item {
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--line);
+}
+
+.myfeed-item .card {
+    padding-bottom: 6px;
+    border-bottom: 0;
+}
+
+.myfeed-matched {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.myfeed-matched li {
+    padding: 2px 10px;
+    border-radius: 999px;
+    background: #e6f3ea;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--green-dark);
+}
