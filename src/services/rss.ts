@@ -30,6 +30,70 @@ interface CachedFeed {
 
 const feedCache = new Map<string, CachedFeed>(); // slug -> feed
 const articleCache = new Map<string, Article>(); // id -> bài viết
+const STORAGE_PREFIX = "dantri_rss_v2_";
+
+function readStorage(slug: string): CachedFeed | null {
+  try {
+    const raw = localStorage.getItem(STORAGE_PREFIX + slug);
+    if (!raw) return null;
+
+    const cached = JSON.parse(raw) as CachedFeed;
+
+    if (
+      !cached ||
+      typeof cached.time !== "number" ||
+      !Array.isArray(cached.items)
+    ) {
+      return null;
+    }
+
+    return cached;
+  } catch {
+    return null;
+  }
+}
+
+function saveCache(slug: string, items: Article[]) {
+  const cached: CachedFeed = {
+    time: Date.now(),
+    items
+  };
+
+  feedCache.set(slug, cached);
+
+  try {
+    localStorage.setItem(
+      STORAGE_PREFIX + slug,
+      JSON.stringify(cached)
+    );
+  } catch (error) {
+    console.warn("Không thể lưu localStorage:", error);
+  }
+
+  items.forEach(article => {
+    articleCache.set(article.id, article);
+  });
+}
+
+function getCachedFeed(slug: string): CachedFeed | null {
+  const memoryCache = feedCache.get(slug);
+
+  if (memoryCache) return memoryCache;
+
+  const storageCache = readStorage(slug);
+
+  if (storageCache) {
+    feedCache.set(slug, storageCache);
+
+    storageCache.items.forEach(article => {
+      articleCache.set(article.id, article);
+    });
+
+    return storageCache;
+  }
+
+  return null;
+}
 
 export function articleId(link: string): string {
   const m = link.match(/-(\d{8,})\.htm/);
@@ -65,23 +129,28 @@ function normalize(raw: RawItem, category: string): Article {
   };
 }
 
-// async function fetchWithTimeout(url: string, timeout=30000): Promise<Response> {
-//   const controller = new AbortController();
-//   const timer = setTimeout(() => controller.abort(), timeout);
-//   try {
-//     const res = await fetch(url, { signal: controller.signal });
-//     clearTimeout(timer);
-//     return res;
-//   } catch (err) {
-//     clearTimeout(timer);
-//     throw new Error('Timeout hoặc lỗi mạng');
-//   }
-// }
+async function fetchWithTimeout(url: string, timeout = 8000): Promise<Response> {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeout);
+
+  try {
+    const res = await fetch(url, { signal: controller.signal });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return res;
+  } catch (error) {
+    if (error instanceof Error && error.name === 'AbortError') {
+      throw new Error('RSS quá thời gian phản hồi');
+    }
+    throw error;
+  } finally {
+    clearTimeout(timer);
+  }
+}
 
 async function fetchViaXml(url: string): Promise<RawItem[]> {
-  const res = await fetch(XML_PROXY + encodeURIComponent(url));
+  // const res = await fetch(XML_PROXY + encodeURIComponent(url));
 
-  // const res = await fetchWithTimeout(XML_PROXY + encodeURIComponent(url),30000);
+  const res = await fetchWithTimeout(XML_PROXY + encodeURIComponent(url));
   if (!res.ok) throw new Error('Proxy lỗi ' + res.status);
   const xml = new DOMParser().parseFromString(await res.text(), 'text/xml');
   return Array.from(xml.querySelectorAll('item')).map((it) => ({
@@ -95,7 +164,10 @@ async function fetchViaXml(url: string): Promise<RawItem[]> {
 
 // Dự phòng: rss2json
 async function fetchViaJson(url: string): Promise<RawItem[]> {
-  const res = await fetch(JSON_API + encodeURIComponent(url));
+  const res = await fetchWithTimeout(
+    JSON_API + encodeURIComponent(url)
+  );
+
   const data = (await res.json()) as Rss2JsonResponse;
   if (data.status !== 'ok') throw new Error(data.message || 'rss2json lỗi');
   return data.items;
@@ -138,77 +210,149 @@ function getFallbackArticles(slug: string): Article[] {
 }
 const pendingRequests = new Map<string, Promise<Article[]>>();
 
-export async function getFeed(slug: string): Promise<Article[]> {
-  console.log('========== RSS DEBUG ==========');
-  console.log('Chuyên mục:', slug);
-  const cached = feedCache.get(slug);
-  if (cached && Date.now() - cached.time < TTL) {
-    console.log('ĐANG DÙNG CACHE:', cached.items.length);
-    return cached.items;
-  }
+// export async function getFeed(slug: string): Promise<Article[]> {
+//   console.log('========== RSS DEBUG ==========');
+//   console.log('Chuyên mục:', slug);
+//   const cached = feedCache.get(slug);
+//   if (cached && Date.now() - cached.time < TTL) {
+//     console.log('ĐANG DÙNG CACHE:', cached.items.length);
+//     return cached.items;
+//   }
+//   const pending = pendingRequests.get(slug);
+//   if (pending) return pending;
+//   const request =(async (): Promise<Article[]> => { 
+//     const cat = getCategory(slug);
+//     if (!cat) {
+//       console.error('KHÔNG TÌM THẤY CATEGORY:', slug);
+//       throw new Error('Chuyên mục không tồn tại');
+//     }
+//     console.log('RSS URL:', cat.rss);
+//     let rawItems: RawItem[] = [];
+//     // Thử AllOrigins
+//     try {
+//       console.log('ĐANG THỬ ALLORIGINS...');
+//       rawItems = await fetchViaXml(cat.rss);
+//       console.log('ALLORIGINS TRẢ VỀ:', rawItems);
+//       if (!rawItems.length) {
+//         throw new Error('RSS XML không có bài viết');
+//       }
+//     } catch (xmlError) {
+//       console.warn('AllOrigins không phản hồi, chuyển sang RSS2JSON:',xmlError);
+//       // Thử RSS2JSON
+//       try {
+//         console.log('ĐANG THỬ RSS2JSON...');
+//         rawItems = await fetchViaJson(cat.rss);
+//         console.log('RSS2JSON TRẢ VỀ:', rawItems);
+//         if (!rawItems.length) {
+//           throw new Error('RSS2JSON không có bài viết');
+//         }
+//       } catch (jsonError) {
+//         console.error('RSS2JSON THẤT BẠI:', jsonError);
+//         const fallback = getFallbackArticles(slug);
+//         fallback.forEach(a => articleCache.set(a.id, a));
+//         feedCache.set(slug, {
+//           time: Date.now() - TTL + 30000,
+//           items: fallback
+//         });
+//       console.warn('ĐANG HIỂN THỊ DỮ LIỆU MẪU');  
+//       return fallback;
+//     }
+//   }
+//   const items = rawItems.filter(item => item.link).map(item => normalize(item, slug));
+//   if (!items.length) {
+//     console.error('KHÔNG CHUẨN HÓA ĐƯỢC BÀI VIẾT');
+//     return getFallbackArticles(slug);
+//   }
+//   items.forEach(a => articleCache.set(a.id, a));
+//   feedCache.set(slug, {
+//     time: Date.now(),
+//     items
+//   });
+
+//   console.log('RSS THÀNH CÔNG:', items.length);
+//   console.log('================================');
+
+//   return items;
+// })();
+//   pendingRequests.set(slug, request);
+//   try {
+//     return await request;
+//   } finally { 
+//     pendingRequests.delete(slug);
+//   }
+// }
+
+
+async function refreshFeed(slug: string): Promise<Article[]> {
   const pending = pendingRequests.get(slug);
   if (pending) return pending;
-  const request =(async (): Promise<Article[]> => { 
+
+  const request = (async (): Promise<Article[]> => {
     const cat = getCategory(slug);
+
     if (!cat) {
-      console.error('KHÔNG TÌM THẤY CATEGORY:', slug);
-      throw new Error('Chuyên mục không tồn tại');
+      throw new Error("Chuyên mục không tồn tại: " + slug);
     }
-    console.log('RSS URL:', cat.rss);
+
     let rawItems: RawItem[] = [];
-    // Thử AllOrigins
     try {
-      console.log('ĐANG THỬ ALLORIGINS...');
       rawItems = await fetchViaXml(cat.rss);
-      console.log('ALLORIGINS TRẢ VỀ:', rawItems);
+
       if (!rawItems.length) {
-        throw new Error('RSS XML không có bài viết');
+        throw new Error("RSS XML không có bài viết");
       }
     } catch (xmlError) {
-      console.warn('AllOrigins không phản hồi, chuyển sang RSS2JSON:',xmlError);
-      // Thử RSS2JSON
-      try {
-        console.log('ĐANG THỬ RSS2JSON...');
-        rawItems = await fetchViaJson(cat.rss);
-        console.log('RSS2JSON TRẢ VỀ:', rawItems);
-        if (!rawItems.length) {
-          throw new Error('RSS2JSON không có bài viết');
-        }
-      } catch (jsonError) {
-        console.error('RSS2JSON THẤT BẠI:', jsonError);
-        const fallback = getFallbackArticles(slug);
-        fallback.forEach(a => articleCache.set(a.id, a));
-        feedCache.set(slug, {
-          time: Date.now() - TTL + 30000,
-          items: fallback
-        });
-      console.warn('ĐANG HIỂN THỊ DỮ LIỆU MẪU');  
-      return fallback;
+      console.warn("AllOrigins lỗi, chuyển sang RSS2JSON:", xmlError);
+      rawItems = await fetchViaJson(cat.rss);
+
+      if (!rawItems.length) {
+        throw new Error("RSS2JSON không có bài viết");
+      }
     }
-  }
-  const items = rawItems.filter(item => item.link).map(item => normalize(item, slug));
-  if (!items.length) {
-    console.error('KHÔNG CHUẨN HÓA ĐƯỢC BÀI VIẾT');
-    return getFallbackArticles(slug);
-  }
-  items.forEach(a => articleCache.set(a.id, a));
-  feedCache.set(slug, {
-    time: Date.now(),
-    items
-  });
+    const items = rawItems
+      .filter(item => item.link)
+      .slice(0, 30)
+      .map(item => normalize(item, slug));
 
-  console.log('RSS THÀNH CÔNG:', items.length);
-  console.log('================================');
+    if (!items.length) {
+      throw new Error("Không chuẩn hóa được bài viết");
+    }
 
-  return items;
-})();
+    saveCache(slug, items);
+    console.log("RSS cập nhật thành công:", slug, items.length);
+    return items;
+  })();
   pendingRequests.set(slug, request);
   try {
     return await request;
-  } finally { 
+  } finally {
     pendingRequests.delete(slug);
   }
 }
+
+export async function getFeed(slug: string): Promise<Article[]> {
+  const cached = getCachedFeed(slug);
+  if (cached && Date.now() - cached.time < TTL) {
+    console.log("Dùng cache:", slug);
+    return cached.items;
+  }
+  if (cached) {
+    console.log("Cache hết hạn, đang cập nhật nền:", slug);
+
+    void refreshFeed(slug).catch(error => {
+      console.warn("RSS lỗi, tiếp tục giữ cache cũ:", slug, error);
+    });
+
+    return cached.items;
+  }
+  try {
+    return await refreshFeed(slug);
+  } catch (error) {
+    console.error("Không tải được RSS:", slug, error);
+    return getFallbackArticles(slug);
+  }
+}
+
 
 // Thời điểm đăng dạng số, ngày không hợp lệ tính là 0 để bài đó xuống cuối danh sách
 function publishedTime(a: Article): number {
