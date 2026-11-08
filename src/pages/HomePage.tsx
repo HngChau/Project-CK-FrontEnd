@@ -25,17 +25,32 @@ export default function HomePage() {
         }
 
         const targetCats = CATEGORIES.filter((c) => c.slug !== 'trang-chu').slice(0, 3);
-        const fetchedSections = await Promise.all(
-            targetCats.map(async (cat) => {
-              const articles = await getFeed(cat.slug).catch(() => []);
-              return {
-                name: cat.name,
-                slug: cat.slug,
-                articles: articles.slice(0, 5),
-              };
-            })
-        );
+        // const fetchedSections = await Promise.all(
+        //     targetCats.map(async (cat) => {
+        //       const articles = await getFeed(cat.slug).catch(() => []);
+        //       return {
+        //         name: cat.name,
+        //         slug: cat.slug,
+        //         articles: articles.slice(0, 5),
+        //       };
+        //     })
+        // );
+        // setSection(fetchedSections);
+        
+        const fetchedSections: CategorySection[] = [];
+        for (const cat of targetCats) {
+          const articles = await getFeed(cat.slug).catch((error) => {
+            console.error(`Lỗi tải chuyên mục ${cat.slug}:`, error);
+            return [];
+          });
+          fetchedSections.push({
+            name: cat.name,
+            slug: cat.slug,
+            articles: articles.slice(0, 5),
+          });
+        }
         setSection(fetchedSections);
+
       } catch (error) {
         console.error('Lỗi tải dữ liệu trang chủ:', error);
       } finally {

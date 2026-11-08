@@ -129,7 +129,7 @@ function normalize(raw: RawItem, category: string): Article {
   };
 }
 
-async function fetchWithTimeout(url: string, timeout = 8000): Promise<Response> {
+async function fetchWithTimeout(url: string, timeout = 7000): Promise<Response> {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), timeout);
 
@@ -164,12 +164,18 @@ async function fetchViaXml(url: string): Promise<RawItem[]> {
 
 // Dự phòng: rss2json
 async function fetchViaJson(url: string): Promise<RawItem[]> {
-  const res = await fetchWithTimeout(
-    JSON_API + encodeURIComponent(url)
-  );
+  const apiUrl =
+    `${JSON_API}${encodeURIComponent(url)}&count=30`;
+    
+  // const res = await fetchWithTimeout(
+  //   JSON_API + encodeURIComponent(url)
+  // );
+
+  const res = await fetchWithTimeout(apiUrl);
 
   const data = (await res.json()) as Rss2JsonResponse;
   if (data.status !== 'ok') throw new Error(data.message || 'rss2json lỗi');
+  console.log('RSS2JSON trả về:', data.items.length, 'bài viết');
   return data.items;
 }
 
@@ -210,6 +216,7 @@ function getFallbackArticles(slug: string): Article[] {
 }
 const pendingRequests = new Map<string, Promise<Article[]>>();
 
+let refreshQueue: Promise<void> = Promise.resolve();
 // export async function getFeed(slug: string): Promise<Article[]> {
 //   console.log('========== RSS DEBUG ==========');
 //   console.log('Chuyên mục:', slug);
@@ -287,7 +294,8 @@ async function refreshFeed(slug: string): Promise<Article[]> {
   const pending = pendingRequests.get(slug);
   if (pending) return pending;
 
-  const request = (async (): Promise<Article[]> => {
+  // const request = (async (): Promise<Article[]> => {
+    const request = refreshQueue.then(async (): Promise<Article[]> => {
     const cat = getCategory(slug);
 
     if (!cat) {
@@ -321,7 +329,13 @@ async function refreshFeed(slug: string): Promise<Article[]> {
     saveCache(slug, items);
     console.log("RSS cập nhật thành công:", slug, items.length);
     return items;
-  })();
+  });
+
+  refreshQueue = request.then(
+    () => undefined,
+    () => undefined
+  );
+
   pendingRequests.set(slug, request);
   try {
     return await request;
