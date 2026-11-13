@@ -717,3 +717,142 @@
 .vw-actions {
     gap: 8px;
 }
+
+/* Thanh bộ sưu tập nằm ngang phía trên danh sách bài */
+.col-bar {
+    margin: 0 0 20px;
+}
+
+.col-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.col-chip {
+    padding: 6px 14px;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    background: var(--soft);
+    font: inherit;
+    font-size: 0.9rem;
+    color: var(--ink);
+    cursor: pointer;
+}
+
+.col-chip:hover {
+    border-color: var(--green);
+    color: var(--green);
+}
+
+.col-chip.is-active {
+    border-color: var(--green);
+    background: var(--green);
+    color: #fff;
+}
+
+.col-chip-add {
+    border-style: dashed;
+    background: var(--bg);
+    color: var(--green);
+}
+
+.col-count {
+    margin-left: 2px;
+    font-size: 0.8rem;
+    opacity: 0.75;
+}
+
+.col-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-top: 12px;
+    font-size: 0.9rem;
+    color: var(--muted);
+}
+
+.col-toolbar strong {
+    color: var(--ink);
+}
+
+.col-toolbar button {
+    padding: 2px 4px;
+    border: 0;
+    background: none;
+    font: inherit;
+    font-weight: 600;
+    color: var(--green);
+    cursor: pointer;
+}
+
+.col-toolbar button:hover {
+    text-decoration: underline;
+}
+
+.col-toolbar .is-danger {
+    color: var(--err);
+}
+
+.col-form {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    margin-top: 12px;
+}
+
+.col-form input {
+    flex: 1;
+    min-width: 180px;
+    max-width: 320px;
+    height: 38px;
+    padding: 0 12px;
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    font: inherit;
+}
+
+.col-form input:focus {
+    border-color: var(--green);
+    outline: none;
+}
+
+.col-form input[aria-invalid='true'] {
+    border-color: var(--err);
+}
+
+.col-form button {
+    height: 38px;
+    padding: 0 16px;
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    background: var(--bg);
+    font: inherit;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.col-form .is-primary {
+    border-color: var(--green);
+    background: var(--green);
+    color: #fff;
+}
+
+.col-form button:disabled {
+    border-color: var(--line);
+    background: var(--line);
+    color: var(--muted);
+    cursor: not-allowed;
+}
+
+.col-hint {
+    font-size: 0.8rem;
+    color: var(--muted);
+}
+
+.col-error {
+    width: 100%;
+    font-size: 0.85rem;
+    color: var(--err);
+}

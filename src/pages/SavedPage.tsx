@@ -6,6 +6,9 @@ import type { Article } from '../types';
 import { getCategory } from '../config/categories';
 import './auth.css';
 import './profile.css';
+import CollectionList from '../components/CollectionList';
+import type { Selection } from '../components/CollectionList';
+import { useCollections } from '../hooks/useCollections';
 
 const DATE_OPTS: Intl.DateTimeFormatOptions = { day: '2-digit', month: '2-digit', year: 'numeric' };
 
@@ -18,6 +21,8 @@ function formatDate(value: string | number): string {
 export default function SavedPage() {
     const { items, toggle } = useBookmarks();
     const [toast, setToast] = useState('');
+    const { collections, createCollection, renameCollection, deleteCollection } = useCollections();
+    const [selected, setSelected] = useState<Selection>('all');
 
     const showToast = (msg: string) => {
         setToast(msg);
@@ -77,6 +82,14 @@ export default function SavedPage() {
                 </div>
 
                 {/* TODO (TV2): bộ sưu tập (tạo/đổi tên/xóa), chuyển bài giữa bộ sưu tập, ghi chú từng bài, tìm trong bài đã lưu */}
+                <CollectionList
+                    collections={collections}
+                    selected={selected}
+                    onSelect={setSelected}
+                    onCreate={createCollection}
+                    onRename={renameCollection}
+                    onDelete={deleteCollection}
+                />
 
                 {items.length === 0 ? (
                     <div className="vw-empty">
