@@ -21,9 +21,30 @@ function formatDate(value: string | number): string {
 export default function SavedPage() {
     const { items, toggle } = useBookmarks();
     const [toast, setToast] = useState('');
-    const { collections, createCollection, renameCollection, deleteCollection } = useCollections();
+    const { collections,assignments, createCollection, renameCollection, deleteCollection, moveArticle, } = useCollections();
     const [selected, setSelected] = useState<Selection>('all');
 
+    // Bộ sưu tập
+    const keyOf = (a: Article) => String(a.id);
+    const validIds = new Set(collections.map((c) => c.id));
+
+    // Chip đang chọn bị xóa (hoặc không còn hợp lệ) thì quay về "Tất cả"
+    const active =
+        selected === 'all' || selected === 'none' || validIds.has(selected) ? selected : 'all';
+
+    // Bộ sưu tập của một bài: 'none' nếu chưa xếp hoặc bộ sưu tập đó đã bị xóa
+    const collectionOf = (a: Article): string => {
+        const cid = assignments[keyOf(a)];
+        return cid && validIds.has(cid) ? cid : 'none';
+    };
+
+    const counts: Record<string, number> = { all: items.length, none: 0 };
+    for (const a of items) {
+        const key = collectionOf(a);
+        counts[key] = (counts[key] ?? 0) + 1;
+    }
+
+    const visible = items.filter((a) => active === 'all' || collectionOf(a) === active);
     const showToast = (msg: string) => {
         setToast(msg);
         window.setTimeout(() => setToast(''), 2500);
@@ -84,7 +105,8 @@ export default function SavedPage() {
                 {/* TODO (TV2): bộ sưu tập (tạo/đổi tên/xóa), chuyển bài giữa bộ sưu tập, ghi chú từng bài, tìm trong bài đã lưu */}
                 <CollectionList
                     collections={collections}
-                    selected={selected}
+                    selected={active}
+                    counts={counts}
                     onSelect={setSelected}
                     onCreate={createCollection}
                     onRename={renameCollection}
@@ -96,10 +118,14 @@ export default function SavedPage() {
                         <p>Chưa có bài nào. Bấm “Đọc sau” ở bất kỳ bài viết nào để lưu.</p>
                         <Link to="/" className="vw-empty-link">Về trang chủ để đọc tin</Link>
                     </div>
+                ) : visible.length === 0 ? (
+                    <div className="vw-empty">
+                        <p>Chưa có bài nào trong mục này. Chọn “Bộ sưu tập” ở từng bài để chuyển vào đây.</p>
+                    </div>
                 ) : (
                     <section className="vw-group">
                         <ul className="vw-list">
-                            {items.map((a) => (
+                            {visible.map((a) => (
                                 <li key={a.id} className="vw-item">
                                     <Link to={articlePath(a)} className="vw-thumb" tabIndex={-1} aria-hidden="true">
                                         {a.image ? <img src={a.image} alt="" loading="lazy" /> : <span />}
@@ -143,6 +169,26 @@ export default function SavedPage() {
                                                     </svg>
                                                 </button>
                                             </div>
+                                        </div>
+
+                                        {/* Chọn bộ sưu tập cho bài này */}
+                                        <div className="vw-extra">
+                                            <label className="move-select">
+                                                Bộ sưu tập:
+                                                <select
+                                                    value={collectionOf(a)}
+                                                    onChange={(e) =>
+                                                        moveArticle(keyOf(a), e.target.value === 'none' ? null : e.target.value)
+                                                    }
+                                                >
+                                                    <option value="none">Chưa phân loại</option>
+                                                    {collections.map((c) => (
+                                                        <option key={c.id} value={c.id}>
+                                                            {c.name}
+                                                        </option>
+                                                    ))}
+                                                </select>
+                                            </label>
                                         </div>
                                     </div>
                                 </li>
