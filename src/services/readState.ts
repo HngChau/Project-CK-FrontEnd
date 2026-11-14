@@ -20,3 +20,8 @@ export function addReadId(list: string[], id: string): string[] {
 export function sameList(a: string[], b: string[]): boolean {
     return a.length === b.length && a.every((x, i) => x === b[i]);
 }
+
+export function formatBadge(count: number, max = 99): string {
+    if (!Number.isFinite(count) || count <= 0) return '';
+    return count > max ? `${max}+` : String(Math.floor(count));
+}
