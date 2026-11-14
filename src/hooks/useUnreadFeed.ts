@@ -9,6 +9,7 @@ import type { Article } from '../types';
 interface UseUnreadFeed {
     loading: boolean;
     error: Error | null;
+    articleCount: number;
     matches: KeywordMatch[];
     unread: KeywordMatch[];
     unreadCount: number;
@@ -19,8 +20,8 @@ export function useUnreadFeed(): UseUnreadFeed {
     const { readIds } = useReadState();
     const hasKeywords = keywords.length > 0;
 
-    const feeds = useAsync<Article[]>(
-        () => (hasKeywords ? getAllFeeds() : Promise.resolve([] as Article[])),
+    const feeds = useAsync<Article[] | null>(
+        () => (hasKeywords ? getAllFeeds() : Promise.resolve(null)),
         [hasKeywords]);
 
     const matches = useMemo<KeywordMatch[]>(
@@ -31,5 +32,14 @@ export function useUnreadFeed(): UseUnreadFeed {
         () => matches.filter((m) => !readIds.has(m.article.id)),
         [matches, readIds]);
 
-    return { loading: feeds.loading, error: feeds.error, matches, unread, unreadCount: unread.length };
+
+    const loading = feeds.loading || (hasKeywords && feeds.data === null && feeds.error === null);
+    return {
+        loading,
+        error: feeds.error,
+        articleCount: feeds.data?.length ?? 0,
+        matches,
+        unread,
+        unreadCount: unread.length,
+    };
 }
