@@ -6,6 +6,7 @@ import { useAuth } from '../context/AuthContext';
 import WeatherWidget from './WeatherWidget';
 import type { AuthLocationState } from './AuthDialog';
 import UserMenu from "./UserMenu";
+import UnreadFeedLink from './UnreadFeedLink';
 
 export default function Header() {
   const { user, logout } = useAuth();
@@ -19,39 +20,42 @@ export default function Header() {
   };
 
   return (
-    <header className="header">
-      <div className="container header-top">
-        <Link to="/" className="logo">dân trí</Link>
-        <WeatherWidget />
-        <form onSubmit={submit} className="search">
-          <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Tìm kiếm tin tức" aria-label="Tìm kiếm" />
-          <button type="submit">Tìm</button>
-        </form>
+      <header className="header">
+        <div className="container header-top">
+          <Link to="/" className="logo">dân trí</Link>
+          <WeatherWidget />
+          <form onSubmit={submit} className="search">
+            <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Tìm kiếm tin tức" aria-label="Tìm kiếm" />
+            <button type="submit">Tìm</button>
+          </form>
           <div className="account">
-              {user ? (
+            {user ? (
+                <>
+                  <UnreadFeedLink />
                   <UserMenu user={user} onLogout={logout} />
-              ) : (
-                  <Link
-                      to="/dang-nhap"
-                      state={{ backgroundLocation: location, from: location.pathname + location.search } satisfies AuthLocationState}
-                      style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}
-                  >
-                      <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                          <circle cx="12" cy="8" r="4" />
-                          <path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7" />
-                      </svg>
-                      Đăng nhập
-                  </Link>
-              )}
+                </>
+            ) : (
+                <Link
+                    to="/dang-nhap"
+                    state={{ backgroundLocation: location, from: location.pathname + location.search } satisfies AuthLocationState}
+                    style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}
+                >
+                  <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                    <circle cx="12" cy="8" r="4" />
+                    <path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7" />
+                  </svg>
+                  Đăng nhập
+                </Link>
+            )}
           </div>
-      </div>
-      <nav className="container nav" aria-label="Chuyên mục">
-        {CATEGORIES.map((c) => (
-          <NavLink key={c.slug} to={c.slug === 'trang-chu' ? '/' : `/chuyen-muc/${c.slug}`} end>
-            {c.name}
-          </NavLink>
-        ))}
-      </nav>
-    </header>
+        </div>
+        <nav className="container nav" aria-label="Chuyên mục">
+          {CATEGORIES.map((c) => (
+              <NavLink key={c.slug} to={c.slug === 'trang-chu' ? '/' : `/chuyen-muc/${c.slug}`} end>
+                {c.name}
+              </NavLink>
+          ))}
+        </nav>
+      </header>
   );
 }

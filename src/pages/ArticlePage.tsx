@@ -15,6 +15,7 @@ import ArticleSidebar from '../components/article/ArticleSidebar';
 import RelatedArticles from '../components/article/RelatedArticles';
 import { useAuth } from '../context/AuthContext';
 import { recordView } from '../services/viewed';
+import { useReadState } from '../hooks/useReadState';
 import '../css/ArticlePage.css';
 
 export default function ArticlePage() {
@@ -70,6 +71,18 @@ export default function ArticlePage() {
         });
         // Chỉ ghi lại khi đổi người dùng hoặc đổi bài, không ghi lại mỗi lần render
     }, [user?.email, article?.id]);
+
+    const { markRead } = useReadState();
+    const articleId = article?.id;
+
+    useEffect(() => {
+        if (!articleId) return;
+        markRead(articleId);
+    }, [articleId, markRead]);
+
+    if (loading) {
+        return <div className="status">Đang tải bài viết...</div>;
+    }
 
     if (loading) {
         return <div className="status">Đang tải bài viết...</div>;
