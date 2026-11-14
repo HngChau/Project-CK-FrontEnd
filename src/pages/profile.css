@@ -856,3 +856,24 @@
     font-size: 0.85rem;
     color: var(--err);
 }
+/* Chuyển bài giữa các bộ sưu tập */
+.vw-extra {
+    margin-top: 8px;
+}
+
+.move-select {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.85rem;
+    color: var(--muted);
+}
+
+.move-select select {
+    padding: 4px 8px;
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    background: var(--bg);
+    font: inherit;
+    color: var(--ink);
+}
