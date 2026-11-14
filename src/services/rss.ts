@@ -1,7 +1,6 @@
 import { CATEGORIES, getCategory } from '../config/categories';
 import type { Article } from '../types';
 
-// CORS: trình duyệt không gọi trực tiếp RSS của Dân trí được, nên đi qua proxy công cộng.
 const XML_PROXY = 'https://api.allorigins.win/raw?url=';
 const JSON_API = 'https://api.rss2json.com/v1/api.json?rss_url=';
 const TTL = 5 * 60 * 1000; // cache 5 phút
@@ -217,78 +216,6 @@ function getFallbackArticles(slug: string): Article[] {
 const pendingRequests = new Map<string, Promise<Article[]>>();
 
 let refreshQueue: Promise<void> = Promise.resolve();
-// export async function getFeed(slug: string): Promise<Article[]> {
-//   console.log('========== RSS DEBUG ==========');
-//   console.log('Chuyên mục:', slug);
-//   const cached = feedCache.get(slug);
-//   if (cached && Date.now() - cached.time < TTL) {
-//     console.log('ĐANG DÙNG CACHE:', cached.items.length);
-//     return cached.items;
-//   }
-//   const pending = pendingRequests.get(slug);
-//   if (pending) return pending;
-//   const request =(async (): Promise<Article[]> => { 
-//     const cat = getCategory(slug);
-//     if (!cat) {
-//       console.error('KHÔNG TÌM THẤY CATEGORY:', slug);
-//       throw new Error('Chuyên mục không tồn tại');
-//     }
-//     console.log('RSS URL:', cat.rss);
-//     let rawItems: RawItem[] = [];
-//     // Thử AllOrigins
-//     try {
-//       console.log('ĐANG THỬ ALLORIGINS...');
-//       rawItems = await fetchViaXml(cat.rss);
-//       console.log('ALLORIGINS TRẢ VỀ:', rawItems);
-//       if (!rawItems.length) {
-//         throw new Error('RSS XML không có bài viết');
-//       }
-//     } catch (xmlError) {
-//       console.warn('AllOrigins không phản hồi, chuyển sang RSS2JSON:',xmlError);
-//       // Thử RSS2JSON
-//       try {
-//         console.log('ĐANG THỬ RSS2JSON...');
-//         rawItems = await fetchViaJson(cat.rss);
-//         console.log('RSS2JSON TRẢ VỀ:', rawItems);
-//         if (!rawItems.length) {
-//           throw new Error('RSS2JSON không có bài viết');
-//         }
-//       } catch (jsonError) {
-//         console.error('RSS2JSON THẤT BẠI:', jsonError);
-//         const fallback = getFallbackArticles(slug);
-//         fallback.forEach(a => articleCache.set(a.id, a));
-//         feedCache.set(slug, {
-//           time: Date.now() - TTL + 30000,
-//           items: fallback
-//         });
-//       console.warn('ĐANG HIỂN THỊ DỮ LIỆU MẪU');  
-//       return fallback;
-//     }
-//   }
-//   const items = rawItems.filter(item => item.link).map(item => normalize(item, slug));
-//   if (!items.length) {
-//     console.error('KHÔNG CHUẨN HÓA ĐƯỢC BÀI VIẾT');
-//     return getFallbackArticles(slug);
-//   }
-//   items.forEach(a => articleCache.set(a.id, a));
-//   feedCache.set(slug, {
-//     time: Date.now(),
-//     items
-//   });
-
-//   console.log('RSS THÀNH CÔNG:', items.length);
-//   console.log('================================');
-
-//   return items;
-// })();
-//   pendingRequests.set(slug, request);
-//   try {
-//     return await request;
-//   } finally { 
-//     pendingRequests.delete(slug);
-//   }
-// }
-
 
 async function refreshFeed(slug: string): Promise<Article[]> {
   const pending = pendingRequests.get(slug);
@@ -344,9 +271,9 @@ async function refreshFeed(slug: string): Promise<Article[]> {
   }
 }
 
-export async function getFeed(slug: string): Promise<Article[]> {
+export async function getFeed(slug: string, force = false): Promise<Article[]> {
   const cached = getCachedFeed(slug);
-  if (cached && Date.now() - cached.time < TTL) {
+  if (!force && cached && Date.now() - cached.time < TTL) {
     console.log("Dùng cache:", slug);
     return cached.items;
   }
@@ -392,6 +319,14 @@ export async function getAllFeeds(): Promise<Article[]> {
       CATEGORIES.filter((c) => c.slug !== 'trang-chu').map((c) => getFeed(c.slug))
   );
   return combineFeeds(results.flatMap((r) => (r.status === 'fulfilled' ? [r.value] : [])));
+}
+
+export async function refreshAllFeeds(): Promise<Article[]> {
+  const slugs = CATEGORIES.filter((c) => c.slug !== 'trang-chu').map((c) => c.slug);
+  const results = await Promise.allSettled(slugs.map((slug) => refreshFeed(slug)));
+  const lists = results.map((r, i) =>
+      r.status === 'fulfilled' ? r.value : getCachedFeed(slugs[i])?.items ?? []);
+  return combineFeeds(lists);
 }
 
 // Chuẩn hóa văn bản để so khớp: bỏ dấu, chữ thường, ký tự không phải chữ/số thành khoảng trắng

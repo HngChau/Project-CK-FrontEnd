@@ -1,15 +1,61 @@
-import { useMemo } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useFollows } from '../hooks/useFollows';
 import { useUnreadFeed } from '../hooks/useUnreadFeed';
 import { groupByKeyword } from '../services/feedGroups';
+import { refreshAllFeeds } from '../services/rss';
+import { REFRESH_INTERVAL_MS, shouldApplyRefresh } from '../services/feedRefresh';
+import type { Article } from '../types';
 import ArticleCard from '../components/ArticleCard';
 import KeywordManager from '../components/KeywordManager';
 import '../css/MyFeedPage.css';
 
 export default function MyFeedPage() {
     const { keywords, add, remove, validate } = useFollows();
-    const { loading, error, articleCount, matches, unread, unreadCount } = useUnreadFeed();
+    const [liveArticles, setLiveArticles] = useState<Article[] | null>(null);
+    const [lastRefresh, setLastRefresh] = useState<Date | null>(null);
+    const { loading, error, articles, articleCount, matches, unread, unreadCount } =
+        useUnreadFeed(liveArticles);
     const groups = useMemo(() => groupByKeyword(unread, keywords), [unread, keywords]);
+    const hasKeywords = keywords.length > 0;
+    const articlesRef = useRef<Article[] | null>(articles);
+    useEffect(() => {
+        articlesRef.current = articles;
+    }, [articles]);
+
+    useEffect(() => {
+        if (!hasKeywords) {
+            setLiveArticles(null);
+            setLastRefresh(null);
+            return;
+        }
+
+        let cancelled = false;
+        let busy = false;
+
+        const timer = setInterval(async () => {
+            console.log('[3.5] tick', { hidden: document.hidden, busy });
+            if (busy || document.hidden) return; // bỏ qua nếu đang chạy hoặc tab đang ẩn
+            busy = true;
+            try {
+                const next = await refreshAllFeeds();
+                const apply = shouldApplyRefresh(articlesRef.current, next);
+                console.log('[3.5] đã lấy', next.length, 'bài, áp dụng:', apply);
+                if (!cancelled) {
+                    setLastRefresh(new Date());
+                    if (apply) setLiveArticles(next);
+                }
+            } catch (err) {
+                console.warn('Làm mới tự động thất bại, giữ dữ liệu hiện tại:', err);
+            } finally {
+                busy = false;
+            }
+        }, REFRESH_INTERVAL_MS);
+
+        return () => {
+            cancelled = true;
+            clearInterval(timer);
+        };
+    }, [hasKeywords]);
 
     const renderResults = () => {
         if (loading) return <p className="status">Đang tải tin từ các chuyên mục...</p>;
@@ -64,6 +110,9 @@ export default function MyFeedPage() {
             <header className="myfeed-head">
                 <h1>Bản tin của tôi</h1>
                 <p>Theo dõi từ khóa để xem tin chưa đọc liên quan từ tất cả chuyên mục.</p>
+                {lastRefresh && (
+                    <p className="kw-none">Cập nhật lần cuối: {lastRefresh.toLocaleTimeString('vi-VN')}</p>
+                )}
             </header>
 
             <KeywordManager keywords={keywords} onAdd={add} onRemove={remove} validate={validate} />
