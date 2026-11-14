@@ -201,3 +201,35 @@
     font-weight: 600;
     color: var(--green-dark);
 }
+
+/* Nhóm tin chưa đọc theo từ khóa */
+.myfeed-group {
+    margin-bottom: 32px;
+}
+
+.myfeed-group-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0 0 16px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid var(--green);
+    font-size: 18px;
+    color: var(--green-dark);
+}
+
+.myfeed-group-count {
+    padding: 1px 10px;
+    border-radius: 999px;
+    background: var(--green);
+    color: #fff;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.myfeed-matched .myfeed-matched-label {
+    padding-left: 0;
+    background: transparent;
+    font-weight: 400;
+    color: var(--muted);
+}
