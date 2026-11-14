@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import AccountNav from '../components/AccountNav';
 import { useBookmarks } from '../hooks/useBookmarks';
@@ -8,7 +8,7 @@ import './auth.css';
 import './profile.css';
 import CollectionList from '../components/CollectionList';
 import type { Selection } from '../components/CollectionList';
-import { useCollections } from '../hooks/useCollections';
+import { NOTE_MAX, useCollections } from '../hooks/useCollections';
 
 const DATE_OPTS: Intl.DateTimeFormatOptions = { day: '2-digit', month: '2-digit', year: 'numeric' };
 
@@ -17,11 +17,130 @@ function formatDate(value: string | number): string {
     return Number.isNaN(d.getTime()) ? '' : d.toLocaleDateString('vi-VN', DATE_OPTS);
 }
 
+interface ArticleNoteProps {
+    value: string;
+    onSave: (text: string) => void;
+}
+
+// Ghi chú của một bài có 3 trạng thái là chưa có, đang nhập và đã có
+function ArticleNote({ value, onSave }: ArticleNoteProps) {
+    const [editing, setEditing] = useState(false);
+    const [draft, setDraft] = useState(value);
+    const areaRef = useRef<HTMLTextAreaElement>(null);
+
+    // Ô nhập tự cao thêm khi gõ nhiều dòng
+    useEffect(() => {
+        const el = areaRef.current;
+        if (!editing || !el) return;
+        el.style.height = 'auto';
+        el.style.height = `${el.scrollHeight}px`;
+    }, [editing, draft]);
+
+    // Mở ô nhập thì đặt con trỏ ở cuối chữ
+    useEffect(() => {
+        const el = areaRef.current;
+        if (!editing || !el) return;
+        el.focus();
+        el.setSelectionRange(el.value.length, el.value.length);
+    }, [editing]);
+
+    const canSave = draft.trim() !== '' && draft.trim() !== value.trim();
+
+    const startEdit = () => {
+        setDraft(value);
+        setEditing(true);
+    };
+
+    const cancel = () => {
+        setDraft(value);
+        setEditing(false);
+    };
+
+    const save = () => {
+        if (!canSave) return;
+        onSave(draft.trim());
+        setEditing(false);
+    };
+
+    const remove = () => {
+        if (!window.confirm('Xóa ghi chú của bài này?')) return;
+        onSave('');
+    };
+
+    // Đang nhập ghi chú
+    if (editing) {
+        return (
+            <div className="note-edit">
+                <textarea
+                    ref={areaRef}
+                    rows={2}
+                    value={draft}
+                    maxLength={NOTE_MAX}
+                    placeholder="Ghi chú của bạn về bài này..."
+                    aria-label="Ghi chú"
+                    onChange={(e) => setDraft(e.target.value)}
+                    onKeyDown={(e) => {
+                        if (e.key === 'Escape') cancel();
+                        if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) save();
+                    }}
+                />
+                <div className="note-edit-foot">
+                    <span className="note-hint">Ctrl + Enter để lưu, Esc để hủy</span>
+                    {/* Bộ đếm chỉ hiện khi gần hết giới hạn */}
+                    {draft.length >= NOTE_MAX - 100 && (
+                        <span className="note-count">
+                            {draft.length}/{NOTE_MAX}
+                        </span>
+                    )}
+                    <div className="note-buttons">
+                        <button type="button" onClick={cancel}>
+                            Hủy
+                        </button>
+                        <button type="button" className="is-primary" onClick={save} disabled={!canSave}>
+                            Lưu
+                        </button>
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
+    // Đã có ghi chú
+    if (value) {
+        return (
+            <div className="note-view">
+                <p className="note-text">{value}</p>
+                <span className="note-ops">
+                    <button type="button" onClick={startEdit}>
+                        Sửa
+                    </button>
+
+                    <button type="button" className="is-danger" onClick={remove}>
+                        Xóa
+                    </button>
+                </span>
+            </div>
+        );
+    }
+
+    // Chưa có ghi chú
+    return (
+        <button type="button" className="note-add" onClick={startEdit}>
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.8"
+                 strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <path d="M4 20h4L18.5 9.5a2.1 2.1 0 00-3-3L5 17z" />
+                <path d="M13.5 6.5l3 3" />
+            </svg>
+            Thêm ghi chú
+        </button>
+    );
+}
+
 // CHỨC NĂNG MỚI 1 (TV2)
 export default function SavedPage() {
     const { items, toggle } = useBookmarks();
     const [toast, setToast] = useState('');
-    const { collections,assignments, createCollection, renameCollection, deleteCollection, moveArticle, } = useCollections();
+    const { collections,assignments, notes, createCollection, renameCollection, deleteCollection, moveArticle, setNote, } = useCollections();
     const [selected, setSelected] = useState<Selection>('all');
 
     // Bộ sưu tập
@@ -189,6 +308,8 @@ export default function SavedPage() {
                                                     ))}
                                                 </select>
                                             </label>
+
+                                            <ArticleNote value={notes[keyOf(a)] ?? ''} onSave={(text) => setNote(keyOf(a), text)} />
                                         </div>
                                     </div>
                                 </li>
