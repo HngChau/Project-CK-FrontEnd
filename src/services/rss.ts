@@ -164,7 +164,7 @@ async function fetchViaXml(url: string): Promise<RawItem[]> {
 // Dự phòng: rss2json
 async function fetchViaJson(url: string): Promise<RawItem[]> {
   const apiUrl =
-    `${JSON_API}${encodeURIComponent(url)}&count=30`;
+    `${JSON_API}${encodeURIComponent(url)}&count=200`;
     
   // const res = await fetchWithTimeout(
   //   JSON_API + encodeURIComponent(url)
@@ -246,7 +246,7 @@ async function refreshFeed(slug: string): Promise<Article[]> {
     }
     const items = rawItems
       .filter(item => item.link)
-      .slice(0, 30)
+      .slice(0, 200)
       .map(item => normalize(item, slug));
 
     if (!items.length) {
