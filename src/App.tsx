@@ -15,6 +15,7 @@ import ViewedPage from './pages/ViewedPage';
 import AuthDialog from './components/AuthDialog';
 import type { AuthLocationState } from './components/AuthDialog';
 import ScrollToTop from './components/ScrollToTop';
+import FeedSettingsPage from './pages/FeedSettingsPage';
 
 export default function App() {
     const location = useLocation();
@@ -45,7 +46,7 @@ export default function App() {
                     <Route path="/tai-khoan" element={<ProtectedRoute><AccountPage /></ProtectedRoute>} />
                     <Route path="/hoat-dong-binh-luan" element={<ProtectedRoute><AccountPage /></ProtectedRoute>} />
                     <Route path="/tin-da-xem" element={<ProtectedRoute><ViewedPage /></ProtectedRoute>} />
-
+                    <Route path="/ban-tin-cua-toi/thiet-lap" element={<ProtectedRoute><FeedSettingsPage /></ProtectedRoute>} />
                     <Route path="*" element={<p>Không tìm thấy trang.</p>} />
                 </Routes>
             </main>
