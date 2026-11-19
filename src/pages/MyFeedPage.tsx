@@ -1,16 +1,20 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { Link } from 'react-router-dom';
+import AccountNav from '../components/AccountNav';
+import ArticleCard from '../components/ArticleCard';
+import FeedSidebar from '../components/FeedSidebar';
 import { useFollows } from '../hooks/useFollows';
 import { useUnreadFeed } from '../hooks/useUnreadFeed';
 import { groupByKeyword } from '../services/feedGroups';
 import { refreshAllFeeds } from '../services/rss';
 import { REFRESH_INTERVAL_MS, shouldApplyRefresh } from '../services/feedRefresh';
 import type { Article } from '../types';
-import ArticleCard from '../components/ArticleCard';
-import KeywordManager from '../components/KeywordManager';
 import '../css/MyFeedPage.css';
+import './auth.css';
+import './profile.css';
 
 export default function MyFeedPage() {
-    const { keywords, add, remove, validate } = useFollows();
+    const { keywords, add, remove } = useFollows();
     const [liveArticles, setLiveArticles] = useState<Article[] | null>(null);
     const [lastRefresh, setLastRefresh] = useState<Date | null>(null);
     const { loading, error, articles, articleCount, matches, unread, unreadCount } =
@@ -106,25 +110,29 @@ export default function MyFeedPage() {
     };
 
     return (
-        <div className="myfeed">
-            <header className="myfeed-head">
-                <h1>Bản tin của tôi</h1>
-                <p>Theo dõi từ khóa để xem tin chưa đọc liên quan từ tất cả chuyên mục.</p>
-                {lastRefresh && (
-                    <p className="kw-none">Cập nhật lần cuối: {lastRefresh.toLocaleTimeString('vi-VN')}</p>
-                )}
-            </header>
+        <div className="acc acc-feed">
+            <AccountNav />
 
-            <KeywordManager keywords={keywords} onAdd={add} onRemove={remove} validate={validate} />
-
-            {keywords.length === 0 ? (
-                <div className="myfeed-empty">
-                    <strong>Bạn chưa theo dõi từ khóa nào</strong>
-                    Nhập từ khóa ở trên hoặc chọn nhanh một gợi ý để bắt đầu nhận tin phù hợp.
+            <div className="acc-main">
+                <div className="vw-head">
+                    <h1 className="acc-title vw-title">Bảng tin của bạn</h1>
                 </div>
-            ) : (
-                <section aria-live="polite">{renderResults()}</section>
-            )}
+                {lastRefresh && (
+                    <p className="feed-updated">Cập nhật lần cuối: {lastRefresh.toLocaleTimeString('vi-VN')}</p>
+                )}
+
+                {keywords.length === 0 ? (
+                    <div className="myfeed-empty">
+                        <strong>Bạn chưa theo dõi từ khóa nào</strong>
+                        Chọn nhanh một gợi ý ở bên phải, hoặc vào{' '}
+                        <Link to="/ban-tin-cua-toi/thiet-lap">Thiết lập hiển thị</Link> để thêm từ khóa.
+                    </div>
+                ) : (
+                    <section aria-live="polite">{renderResults()}</section>
+                )}
+            </div>
+
+            <FeedSidebar keywords={keywords} onAdd={add} onRemove={remove} />
         </div>
     );
 }
