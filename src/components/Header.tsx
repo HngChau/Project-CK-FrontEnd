@@ -7,12 +7,16 @@ import WeatherWidget from './WeatherWidget';
 import type { AuthLocationState } from './AuthDialog';
 import UserMenu from "./UserMenu";
 import UnreadFeedLink from './UnreadFeedLink';
+import { useTheme } from '../context/ThemeContext';
 
 export default function Header() {
-  const { user, logout } = useAuth();
-  const [q, setQ] = useState('');
-  const navigate = useNavigate();
-  const location = useLocation();
+    const { user, logout } = useAuth();
+    const { theme, toggleTheme } = useTheme();
+
+    const [q, setQ] = useState('');
+    const navigate = useNavigate();
+    const location = useLocation();
+
 
   const submit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -29,6 +33,19 @@ export default function Header() {
             <button type="submit">Tìm</button>
           </form>
           <div className="account">
+              {/* Nút chuyển đổi giao diện sáng/tối */}
+              <button
+                  type="button"
+                  className="theme-toggle"
+                  onClick={toggleTheme}
+                  aria-label={
+                      theme === 'light'
+                          ? 'Chuyển sang chế độ tối'
+                          : 'Chuyển sang chế độ sáng'
+                  }
+                  title="Chuyển đổi giao diện">
+                  {theme === 'light' ? '☽' : '☼'}
+              </button>
             {user ? (
                 <>
                   <UnreadFeedLink />
