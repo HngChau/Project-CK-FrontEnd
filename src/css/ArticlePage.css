@@ -66,7 +66,7 @@
 .art-main {
     grid-area: main;
     min-width: 0;
-    color: #222;
+    color: var(--ink);
 }
 
 .art-topline {
@@ -106,7 +106,7 @@
     line-height: 1.3;
     font-weight: 700;
     letter-spacing: -0.3px;
-    color: #000;
+    color: var(--ink);
 }
 
 /* Nguồn bài và trình nghe  */
@@ -208,7 +208,7 @@
     margin: 0 0 22px;
     font-size: 19px;
     line-height: 1.75;
-    color: #333;
+    color: var(--ink);
 }
 
 .art-cover {
@@ -233,28 +233,40 @@
 
 .art-content {
     font-size: 19px;
-    line-height: 1.75;
-    color: #333;
+    line-height: 1.85;
+    color: #303846;
     overflow-wrap: anywhere;
+    letter-spacing: 0.05px;
 }
 
 .art-content p {
-    margin: 0 0 20px;
+    margin: 0 0 22px;
 }
 
 .art-content h2,
 .art-content h3 {
-    margin: 28px 0 14px;
+    margin: 30px 0 16px;
     line-height: 1.45;
-    color: #111;
+    color: #172033;
+    font-weight: 700;
 }
 
 .art-content a {
-    color: #4043cf;
+    color: #087a50;
+    text-decoration: none;
 }
 
 .art-content a:hover {
     text-decoration: underline;
+}
+
+.art-content blockquote {
+    margin: 24px 0;
+    padding: 16px 20px;
+    border-left: 4px solid var(--green);
+    background: #f3f8f5;
+    color: #475569;
+    border-radius: 0 8px 8px 0;
 }
 
 .art-content img {
@@ -262,31 +274,6 @@
     max-width: 100%;
     height: auto;
     margin: 24px auto;
-}
-
-.art-content figure {
-    max-width: 100%;
-    margin: 24px auto;
-}
-
-.art-content figcaption {
-    margin-top: 8px;
-    font-size: 13px;
-    text-align: center;
-    color: #777;
-}
-
-.art-content ul,
-.art-content ol {
-    margin: 0 0 20px;
-    padding-left: 26px;
-}
-
-.art-content blockquote {
-    margin: 24px 0;
-    padding-left: 18px;
-    border-left: 4px solid var(--green);
-    color: #555;
 }
 
 .art-empty {
