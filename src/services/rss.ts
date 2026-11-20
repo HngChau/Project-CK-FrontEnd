@@ -146,12 +146,9 @@ async function fetchWithTimeout(url: string, timeout = 7000): Promise<Response> 
   }
 }
 
-async function fetchViaXml(url: string): Promise<RawItem[]> {
-  // const res = await fetch(XML_PROXY + encodeURIComponent(url));
-
-  const res = await fetchWithTimeout(XML_PROXY + encodeURIComponent(url));
-  if (!res.ok) throw new Error('Proxy lỗi ' + res.status);
-  const xml = new DOMParser().parseFromString(await res.text(), 'text/xml');
+// Đọc các thẻ <item> của một trang RSS dạng XML
+function parseRss(text: string): RawItem[] {
+  const xml = new DOMParser().parseFromString(text, 'text/xml');
   return Array.from(xml.querySelectorAll('item')).map((it) => ({
     title: it.querySelector('title')?.textContent,
     link: it.querySelector('link')?.textContent,
@@ -159,6 +156,18 @@ async function fetchViaXml(url: string): Promise<RawItem[]> {
     pubDate: it.querySelector('pubDate')?.textContent,
     enclosure: { link: it.querySelector('enclosure')?.getAttribute('url') },
   }));
+}
+
+async function fetchViaXml(url: string): Promise<RawItem[]> {
+  try {
+    const res = await fetchWithTimeout(new URL(url).pathname);
+    const items = parseRss(await res.text());
+    if (items.length) return items;
+  } catch {
+    // chưa có proxy cùng nguồn gốc hoặc bị lỗi thì dùng proxy công cộng bên dưới
+  }
+  const res = await fetchWithTimeout(XML_PROXY + encodeURIComponent(url));
+  return parseRss(await res.text());
 }
 
 // Dự phòng: rss2json
