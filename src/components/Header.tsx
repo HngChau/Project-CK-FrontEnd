@@ -6,7 +6,7 @@ import { useAuth } from '../context/AuthContext';
 import WeatherWidget from './WeatherWidget';
 import type { AuthLocationState } from './AuthDialog';
 import UserMenu from "./UserMenu";
-import UnreadFeedLink from './UnreadFeedLink';
+import NotificationBell from './NotificationBell';
 import { useTheme } from '../context/ThemeContext';
 
 export default function Header() {
@@ -48,7 +48,7 @@ export default function Header() {
               </button>
             {user ? (
                 <>
-                  <UnreadFeedLink />
+                  <NotificationBell />
                   <UserMenu user={user} onLogout={logout} />
                 </>
             ) : (

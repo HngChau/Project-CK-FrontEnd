@@ -1,0 +1,218 @@
+.header-top {
+    position: relative;
+}
+
+.bell-btn {
+    position: relative;
+    display: inline-grid;
+    place-items: center;
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: transparent;
+    color: var(--ink, #1d1d1d);
+}
+
+.bell-btn:hover,
+.bell-btn[aria-expanded='true'] {
+    background: var(--soft, #f5f7f5);
+    color: var(--green-text, var(--green));
+}
+
+.bell-badge {
+    position: absolute;
+    top: -2px;
+    right: -2px;
+    min-width: 18px;
+    height: 18px;
+    padding: 0 5px;
+    border-radius: 9px;
+    background: #d70018;
+    box-shadow: 0 0 0 2px var(--surface, #fff);
+    color: #fff;
+    font-size: 11px;
+    font-weight: 700;
+    line-height: 18px;
+    text-align: center;
+}
+
+.bell-panel {
+    position: absolute;
+    top: calc(100% - 4px);
+    right: 16px;
+    z-index: 30;
+    width: min(480px, calc(100vw - 32px));
+    overflow: hidden;
+    border-radius: 0 0 14px 14px;
+    background: var(--surface, #fff);
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.18);
+}
+
+.bell-tabs {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+}
+
+.bell-tab {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    padding: 16px 8px 14px;
+    border: 0;
+    background: var(--soft, #f7f7f7);
+    color: var(--muted, #6b6b6b);
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.bell-tab.is-active {
+    background: var(--surface, #fff);
+    color: var(--ink, #1d1d1d);
+}
+
+.bell-tab:not(.is-active):hover {
+    color: var(--ink, #1d1d1d);
+}
+
+.bell-body {
+    max-height: min(62vh, 520px);
+    padding: 0 24px 8px;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+}
+
+.bell-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.bell-item {
+    position: relative;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    gap: 10px 12px;
+    padding: 20px 0;
+    border-bottom: 1px solid var(--line, #e2e2e2);
+}
+
+.bell-item:last-child {
+    border-bottom: 0;
+}
+
+.bell-item-title {
+    grid-column: 1 / -1;
+    font-size: 17px;
+    font-weight: 700;
+    line-height: 1.45;
+    color: var(--ink, #1d1d1d);
+}
+
+.bell-item-title::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+}
+
+.bell-item-title:hover {
+    color: var(--green-text, var(--green));
+}
+
+.bell-item-meta {
+    font-size: 14px;
+    color: var(--muted, #6b6b6b);
+}
+
+.bell-save {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    place-items: center;
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: transparent;
+    color: var(--ink, #1d1d1d);
+}
+
+.bell-save:hover {
+    background: var(--soft, #f5f7f5);
+    color: var(--green-text, var(--green));
+}
+
+.bell-save.is-saved {
+    color: var(--green-text, var(--green));
+}
+
+.bell-comment-text {
+    grid-column: 1 / -1;
+    margin: 0;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    font-size: 15px;
+    line-height: 1.5;
+    color: var(--muted, #6b6b6b);
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}
+
+.bell-more {
+    display: block;
+    padding: 14px 0 10px;
+    border-top: 1px solid var(--line, #e2e2e2);
+    text-align: center;
+    font-weight: 600;
+    color: var(--green-text, var(--green));
+}
+
+.bell-empty {
+    padding: 36px 8px;
+    text-align: center;
+    font-size: 15px;
+    line-height: 1.6;
+    color: var(--muted, #6b6b6b);
+}
+
+.bell-empty strong {
+    display: block;
+    margin-bottom: 4px;
+    font-size: 17px;
+    color: var(--ink, #1d1d1d);
+}
+
+.bell-empty a {
+    display: inline-block;
+    margin-top: 10px;
+    font-weight: 600;
+    color: var(--green-text, var(--green));
+}
+
+@media (max-width: 600px) {
+    .bell-panel {
+        position: fixed;
+        top: 64px;
+        left: 12px;
+        right: 12px;
+        width: auto;
+        border-radius: 14px;
+    }
+
+    .bell-body {
+        max-height: calc(100vh - 220px);
+        padding: 0 16px 8px;
+    }
+}
+
+@media print {
+    .bell {
+        display: none;
+    }
+}

@@ -1,6 +1,5 @@
 import type { Article } from '../types';
 
-// VD: "Thứ bảy, 31/10/2026 - 13:08" (giờ Việt Nam), trả về chuỗi rỗng nếu ngày không hợp lệ.
 export function formatFullDate(dateStr: string): string {
     const d = new Date(dateStr);
     if (Number.isNaN(d.getTime())) return '';
@@ -21,9 +20,6 @@ export function formatFullDate(dateStr: string): string {
     return `${day}, ${get('day')}/${get('month')}/${get('year')} - ${get('hour')}:${get('minute')}`;
 }
 
-/**
- * Đường dẫn nội bộ tới trang chi tiết bài lấy pathname để khớp route /:categorySlug/:articleSlug.
- */
 export function articlePath(a: Article): string {
     try {
         const { pathname } = new URL(a.link);
@@ -32,4 +28,22 @@ export function articlePath(a: Article): string {
         // link không hợp lệ, dùng đường dẫn dự phòng bên dưới
     }
     return `/bai-viet/${a.id}?c=${a.category}`;
+}
+
+export function formatShortDate(dateStr: string): string {
+    const d = new Date(dateStr);
+    if (Number.isNaN(d.getTime())) return '';
+    const parts = new Intl.DateTimeFormat('vi-VN', {
+        timeZone: 'Asia/Ho_Chi_Minh',
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+    }).formatToParts(d);
+    const get = (type: Intl.DateTimeFormatPartTypes): string =>
+        parts.find((p) => p.type === type)?.value ?? '';
+    return `${get('day')}/${get('month')}/${get('year')}`;
+}
+
+export function formatNotificationMeta(categoryName: string, pubDate: string): string {
+    return [categoryName, formatShortDate(pubDate)].filter(Boolean).join(' - ');
 }
