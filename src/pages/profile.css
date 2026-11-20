@@ -5,6 +5,7 @@
     max-width: none;
     margin: 0 auto;
     padding-top: 16px;
+    --sticky-top: 184px;
 }
 
 .acc-nav {
@@ -13,7 +14,7 @@
     gap: 2px;
     align-self: start;
     position: sticky;
-    top: 16px;
+    top: var(--sticky-top);
 }
 
 .acc-nav-link {
@@ -1052,6 +1053,9 @@
     }
     .acc.acc-feed .feed-side {
         grid-column: 1 / -1;
+        position: static;
+        max-height: none;
+        overflow: visible;
     }
 }
 
@@ -1073,6 +1077,12 @@
     flex-direction: column;
     gap: 24px;
     align-self: start;
+    position: sticky;
+    overflow-y: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    top: var(--sticky-top);
+    max-height: calc(100vh - var(--sticky-top) - 16px);
 }
 
 .feed-settings {

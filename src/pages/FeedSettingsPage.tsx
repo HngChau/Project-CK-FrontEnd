@@ -6,7 +6,8 @@ import { getInitials } from '../components/UserMenu';
 import { SUGGESTED_AUTHORS } from '../config/authors';
 import { CATEGORIES } from '../config/categories';
 import { useFollows } from '../hooks/useFollows';
-import { useToggleSet } from '../hooks/useToggleSet';
+import { useFollowList } from '../hooks/useFollowList';
+import { removeAccents } from '../services/rss';
 import '../css/MyFeedPage.css';
 import './auth.css';
 import './profile.css';
@@ -37,20 +38,19 @@ export default function FeedSettingsPage() {
     const tab: Tab = isTab(tabParam) ? tabParam : 'category';
     const [query, setQuery] = useState('');
 
-    const [followedCats, toggleCat] = useToggleSet();
-    const [followedAuthors, toggleAuthor] = useToggleSet();
+    const [followedCats, toggleCat] = useFollowList('categories');
+    const [followedAuthors, toggleAuthor] = useFollowList('authors');
 
     const changeTab = (id: Tab) => {
         setQuery('');
         setParams({ tab: id }, { replace: true });
     };
 
-    const q = query.trim().toLowerCase();
+    const q = removeAccents(query.trim());
     const categories = CATEGORIES.filter((c) => c.slug !== 'trang-chu').filter(
-        (c) => !q || c.name.toLowerCase().includes(q)
+        (c) => !q || removeAccents(c.name).includes(q)
     );
-    const authors = SUGGESTED_AUTHORS.filter((a) => !q || a.name.toLowerCase().includes(q));
-
+    const authors = SUGGESTED_AUTHORS.filter((a) => !q || removeAccents(a.name).includes(q));
     return (
         <div className="acc">
             <AccountNav />
