@@ -14,7 +14,8 @@ import {
 import type { FormErrors } from '../services/auth';
 import './auth.css';
 import './profile.css';
-import AccountNav from "../components/AccountNav";
+import AccountNav from '../components/AccountNav';
+import DataBackup from '../components/DataBackup';
 
 function Icon({ children, size = 26 }: { children: ReactNode; size?: number }) {
     return (
@@ -885,6 +886,7 @@ export default function AccountPage() {
                 </AccountRow>
                     </>
                     )}
+                <DataBackup />
             </div>
         </div>
     );

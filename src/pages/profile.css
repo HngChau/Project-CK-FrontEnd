@@ -1405,3 +1405,47 @@
         min-width: 140px;
     }
 }
+
+/* Dữ liệu của bạn (xuất/nhập JSON) */
+.acc-data {
+    margin-top: 36px;
+}
+
+.acc-data-title {
+    margin: 0 0 6px;
+    font-size: 1.3rem;
+    font-weight: 700;
+}
+
+.acc-data-desc {
+    margin: 0 0 14px;
+    font-size: 0.9rem;
+    line-height: 1.5;
+    color: var(--muted);
+}
+
+.acc-data-actions {
+    display: flex;
+    gap: 12px;
+}
+
+.acc-data-actions .acc-btn {
+    flex: 0 0 auto;
+    height: 38px;
+    padding: 0 22px;
+    border-color: var(--green);
+    background: var(--green);
+    font-size: 0.9rem;
+    color: #fff;
+}
+
+.acc-data-actions .acc-btn:hover:not(:disabled) {
+    border-color: var(--green-dark);
+    background: var(--green-dark);
+}
+
+.acc-data-actions .acc-btn:disabled {
+    border-color: var(--line);
+    background: var(--line);
+    color: var(--muted);
+}
