@@ -17,17 +17,17 @@ export default function MyFeedPage() {
     const { keywords, add, remove } = useFollows();
     const [liveArticles, setLiveArticles] = useState<Article[] | null>(null);
     const [lastRefresh, setLastRefresh] = useState<Date | null>(null);
-    const { loading, error, articles, articleCount, matches, unread, unreadCount } =
-        useUnreadFeed(liveArticles);
-    const groups = useMemo(() => groupByKeyword(unread, keywords), [unread, keywords]);
-    const hasKeywords = keywords.length > 0;
+    const {
+        loading, error, articles, articleCount, matches, unread, unreadCount, hasFollows, sources,
+    } = useUnreadFeed(liveArticles);
+    const groups = useMemo(() => groupByKeyword(unread, sources), [unread, sources]);
     const articlesRef = useRef<Article[] | null>(articles);
     useEffect(() => {
         articlesRef.current = articles;
     }, [articles]);
 
     useEffect(() => {
-        if (!hasKeywords) {
+        if (!hasFollows) {
             setLiveArticles(null);
             setLastRefresh(null);
             return;
@@ -59,7 +59,7 @@ export default function MyFeedPage() {
             cancelled = true;
             clearInterval(timer);
         };
-    }, [hasKeywords]);
+    }, [hasFollows]);
 
     const renderResults = () => {
         if (loading) return <p className="status">Đang tải tin từ các chuyên mục...</p>;
@@ -72,18 +72,18 @@ export default function MyFeedPage() {
         if (matches.length === 0) {
             return (
                 <p className="status">
-                    Chưa có bài viết nào khớp với các từ khóa bạn đang theo dõi. Hãy thử thêm từ khóa khác.
+                    Chưa có bài viết nào khớp với từ khóa hoặc chuyên mục bạn đang theo dõi. Hãy thử theo dõi thêm.
                 </p>
             );
         }
         if (unreadCount === 0) {
-            return <p className="status">Bạn đã đọc hết tin mới theo các từ khóa đang theo dõi.</p>;
+            return <p className="status">Bạn đã đọc hết tin mới theo những gì bạn đang theo dõi.</p>;
         }
         return (
             <>
                 <h2 className="myfeed-subtitle">{unreadCount} tin chưa đọc</h2>
                 {groups.map((group) => (
-                    <section key={group.keyword} className="myfeed-group" aria-label={`Từ khóa ${group.keyword}`}>
+                    <section key={group.keyword} className="myfeed-group" aria-label={group.keyword}>
                         <h3 className="myfeed-group-title">
                             <span>{group.keyword}</span>
                             <span className="myfeed-group-count">{group.items.length}</span>
@@ -93,7 +93,7 @@ export default function MyFeedPage() {
                                 <div key={article.id} className="myfeed-item">
                                     <ArticleCard article={article} />
                                     {matched.length > 1 && (
-                                        <ul className="myfeed-matched" aria-label="Cũng khớp từ khóa">
+                                        <ul className="myfeed-matched" aria-label="Cũng khớp">
                                             <li className="myfeed-matched-label">Cũng khớp:</li>
                                             {matched.slice(1).map((k) => (
                                                 <li key={k}>{k}</li>
@@ -121,11 +121,11 @@ export default function MyFeedPage() {
                     <p className="feed-updated">Cập nhật lần cuối: {lastRefresh.toLocaleTimeString('vi-VN')}</p>
                 )}
 
-                {keywords.length === 0 ? (
+                {!hasFollows ? (
                     <div className="myfeed-empty">
-                        <strong>Bạn chưa theo dõi từ khóa nào</strong>
+                        <strong>Bạn chưa theo dõi từ khóa hay chuyên mục nào</strong>
                         Chọn nhanh một gợi ý ở bên phải, hoặc vào{' '}
-                        <Link to="/ban-tin-cua-toi/thiet-lap">Thiết lập hiển thị</Link> để thêm từ khóa.
+                        <Link to="/ban-tin-cua-toi/thiet-lap">Thiết lập hiển thị</Link> để theo dõi.
                     </div>
                 ) : (
                     <section aria-live="polite">{renderResults()}</section>

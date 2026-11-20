@@ -3,9 +3,9 @@ import { Link } from 'react-router-dom';
 import { getInitials } from './UserMenu';
 import { SUGGESTED_AUTHORS } from '../config/authors';
 import { CATEGORIES } from '../config/categories';
-import { useToggleSet } from '../hooks/useToggleSet';
 import { keywordKey } from '../services/follows';
 import type { AddResult } from '../services/follows';
+import { useFollowList } from '../hooks/useFollowList';
 
 // Mỗi khối gợi ý chỉ hiện 3 mục
 const KEYWORD_SUGGESTIONS = ['giáo dục', 'bóng đá', 'công nghệ'];
@@ -29,9 +29,8 @@ function SubHead({ title, tab }: { title: string; tab: 'keyword' | 'category' | 
 
 export default function FeedSidebar({ keywords, onAdd, onRemove }: Props) {
     const [error, setError] = useState('');
-    const [followedCats, toggleCat] = useToggleSet();
-    const [followedAuthors, toggleAuthor] = useToggleSet();
-
+    const [followedCats, toggleCat] = useFollowList('categories');
+    const [followedAuthors, toggleAuthor] = useFollowList('authors');
     const isFollowed = (k: string) => keywords.some((x) => keywordKey(x) === keywordKey(k));
 
     // Từ khóa: bấm "+ Theo dõi" để theo dõi, bấm "Đang theo dõi" để bỏ theo dõi
