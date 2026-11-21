@@ -4,7 +4,7 @@ import { Flame, RotateCcw } from 'lucide-react';
 import { getFeed, timeAgo } from '../services/rss';
 import { articlePath } from '../services/format';
 import { CATEGORIES } from '../config/categories';
-import ArticleSkeleton from '../components/ArticleSkeleton';
+// import ArticleSkeleton from '../components/ArticleSkeleton';
 import type { Article } from '../types';
 
 interface CategorySection {
@@ -20,6 +20,120 @@ function extractTopicLabel(title: string): string {
     .split(/\s+/)
     .slice(0, 5)
     .join(' ');
+}
+
+function HomePageSkeleton() {
+  return (
+    <div className="hp-wrap" aria-busy="true" aria-label="Đang tải trang chủ">
+      {/* 1. HERO 3 CỘT */}
+      <section className="hp-hero">
+        <div className="hp-hero-left">
+          {[0, 1].map((idx) => (
+            <div key={`skel-hero-l-${idx}`} style={{ paddingBottom: '12px', borderBottom: '1px solid #f1f5f9' }}>
+              <div className="hp-skel-box hp-hero-sub-img" />
+              <div className="hp-skel-box hp-skel-line" />
+              <div className="hp-skel-box hp-skel-line short" />
+            </div>
+          ))}
+        </div>
+
+        <div className="hp-hero-center">
+          <div className="hp-skel-box hp-hero-lead-img" />
+          <div style={{ display: 'flex', gap: '10px', marginBottom: '10px' }}>
+            <div className="hp-skel-box" style={{ width: '72px', height: '20px' }} />
+            <div className="hp-skel-box hp-skel-line sm" style={{ marginBottom: 0, alignSelf: 'center' }} />
+          </div>
+          <div className="hp-skel-box hp-skel-line lg" />
+          <div className="hp-skel-box hp-skel-line" />
+          <div className="hp-skel-box hp-skel-line short" />
+        </div>
+
+        <aside>
+          <div className="hp-skel-box hp-skel-line" style={{ width: '110px', height: '18px', marginBottom: '14px' }} />
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            {[0, 1, 2, 3, 4].map((idx) => (
+              <div key={`skel-latest-${idx}`} className="hp-skel-news-row">
+                <div className="hp-skel-box hp-skel-num" />
+                <div style={{ flex: 1 }}>
+                  <div className="hp-skel-box hp-skel-line" style={{ marginBottom: '6px' }} />
+                  <div className="hp-skel-box hp-skel-line sm" style={{ marginBottom: 0 }} />
+                </div>
+              </div>
+            ))}
+          </div>
+        </aside>
+      </section>
+
+      {/* 2. THÂN TRANG 2 CỘT */}
+      <div className="hp-body">
+        <div className="hp-left-stream">
+          {[0, 1, 2, 3].map((idx) => (
+            <div key={`skel-stream-${idx}`} className="hp-stream-card">
+              <div style={{ flexShrink: 0 }}>
+                <div className="hp-skel-box hp-stream-img" />
+              </div>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div className="hp-skel-box hp-skel-line" />
+                <div className="hp-skel-box hp-skel-line" style={{ height: '12px' }} />
+                <div className="hp-skel-box hp-skel-line short" style={{ height: '12px', marginBottom: 0 }} />
+              </div>
+            </div>
+          ))}
+
+          <div className="hp-skel-topics">
+            {[0, 1, 2, 3].map((idx) => (
+              <div key={`skel-topic-${idx}`} className="hp-skel-box hp-skel-pill" />
+            ))}
+          </div>
+        </div>
+
+        <div className="hp-right-sections">
+          {[0, 1].map((secIdx) => (
+            <section
+              key={`skel-sec-${secIdx}`}
+              style={{
+                paddingBottom: secIdx === 0 ? '24px' : 0,
+                borderBottom: secIdx === 0 ? '1px solid #e5e7eb' : 'none',
+              }}
+            >
+              <div className="hp-skel-box hp-skel-line" style={{ width: '150px', height: '18px', marginBottom: '14px' }} />
+              <div className="hp-sec-split">
+                <div className="hp-sec-lead">
+                  <div className="hp-skel-box hp-sec-lead-img" />
+                  <div className="hp-skel-box hp-skel-line" />
+                  <div className="hp-skel-box hp-skel-line" style={{ height: '12px' }} />
+                  <div className="hp-skel-box hp-skel-line short" style={{ height: '12px', marginBottom: 0 }} />
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                  {[0, 1, 2].map((itemIdx) => (
+                    <div key={`skel-sub-${secIdx}-${itemIdx}`} className="hp-skel-sub-item">
+                      <div style={{ flex: 1 }}>
+                        <div className="hp-skel-box hp-skel-line" style={{ height: '12px', marginBottom: '6px' }} />
+                        <div className="hp-skel-box hp-skel-line short" style={{ height: '12px', marginBottom: 0 }} />
+                      </div>
+                      <div className="hp-skel-box hp-sec-thumb" style={{ flexShrink: 0 }} />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </section>
+          ))}
+        </div>
+      </div>
+
+      {/* 3. HÀNG 4 CHUYÊN MỤC ĐÁY TRANG */}
+      <section className="hp-bottom-4">
+        {[0, 1, 2, 3].map((colIdx) => (
+          <div key={`skel-b4-${colIdx}`} style={{ display: 'flex', flexDirection: 'column' }}>
+            <div className="hp-skel-box hp-skel-line" style={{ width: '110px', height: '16px', marginBottom: '12px' }} />
+            <div className="hp-skel-box hp-bottom-lead-img" />
+            <div className="hp-skel-box hp-skel-line" />
+            <div className="hp-skel-box hp-skel-line short" />
+          </div>
+        ))}
+      </section>
+    </div>
+  );
 }
 
 export default function HomePage() {
@@ -139,11 +253,7 @@ export default function HomePage() {
   }, [sections, heroArticles]);
 
   if (loading) {
-    return (
-      <div className="hp-wrap" style={{ paddingTop: '48px' }}>
-        <ArticleSkeleton count={9} />
-      </div>
-    );
+    return <HomePageSkeleton />;
   }
 
   if (error) {
