@@ -1,6 +1,6 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Flame } from 'lucide-react';
+import { Flame, RotateCcw } from 'lucide-react';
 import { getFeed, timeAgo } from '../services/rss';
 import { articlePath } from '../services/format';
 import { CATEGORIES } from '../config/categories';
@@ -12,7 +12,6 @@ interface CategorySection {
   slug: string;
   articles: Article[];
 }
-
 
 function extractTopicLabel(title: string): string {
   return title
@@ -27,22 +26,39 @@ export default function HomePage() {
   const [heroArticles, setHeroArticles] = useState<Article[]>([]);
   const [sections, setSections] = useState<CategorySection[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+  const [reloadTick, setReloadTick] = useState<number>(0);
+
+  const triggerRetry = useCallback(() => {
+    setReloadTick((prev) => prev + 1);
+  }, []);
 
   useEffect(() => {
     let isMounted = true;
 
     async function loadData() {
+      setLoading(true);
+      setError(null);
+      setSections([]);
+
       try {
-        const homeArticles = await getFeed('trang-chu').catch(() => []);
+        const homeArticles = await getFeed('trang-chu');
         if (!isMounted) return;
+
+        if (!homeArticles || homeArticles.length === 0) {
+          setError('Không thể tải dữ liệu RSS trang chủ. Vui lòng thử lại.');
+          setLoading(false);
+          return;
+        }
+
         setHeroArticles(homeArticles.slice(0, 8));
         setLoading(false);
 
         const targetCats = CATEGORIES.filter((c) => c.slug !== 'trang-chu');
         for (const cat of targetCats) {
           if (!isMounted) break;
-          const articles = await getFeed(cat.slug).catch((error) => {
-            console.error(`Lỗi tải chuyên mục ${cat.slug}:`, error);
+          const articles = await getFeed(cat.slug).catch((err) => {
+            console.error(`Lỗi tải chuyên mục ${cat.slug}:`, err);
             return [];
           });
 
@@ -60,9 +76,12 @@ export default function HomePage() {
             });
           }
         }
-      } catch (error) {
-        console.error('Lỗi tải dữ liệu trang chủ:', error);
-        if (isMounted) setLoading(false);
+      } catch (err) {
+        console.error('Lỗi tải dữ liệu trang chủ:', err);
+        if (isMounted) {
+          setError('Đã xảy ra lỗi khi kết nối nguồn dữ liệu RSS.');
+          setLoading(false);
+        }
       }
     }
 
@@ -70,9 +89,8 @@ export default function HomePage() {
     return () => {
       isMounted = false;
     };
-  }, []);
+  }, [reloadTick]);
 
-  // Cột "Tin mới nhận" bên phải Hero
   const latestSidebar = useMemo(() => {
     const fromHero = heroArticles.slice(3, 8);
     if (fromHero.length >= 5) return fromHero;
@@ -91,7 +109,6 @@ export default function HomePage() {
     return [...fromHero, ...extra];
   }, [heroArticles, sections]);
 
-  // Gom toàn bộ bài viết từ các chuyên mục để đổ vào luồng tin liên tục bên cột trái
   const leftStreamArticles = useMemo(() => {
     const usedIds = new Set(heroArticles.map((a) => a.id));
     const pool: Article[] = [];
@@ -107,7 +124,6 @@ export default function HomePage() {
     return pool.slice(0, 18);
   }, [sections, heroArticles]);
 
-  // Gom các từ khóa cho khung "CHỦ ĐỀ NÓNG"
   const hotTopics = useMemo(() => {
     const source = sections.length > 0 ? sections.flatMap((s) => s.articles) : heroArticles;
     return Array.from(
@@ -124,45 +140,56 @@ export default function HomePage() {
 
   if (loading) {
     return (
-      <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '110px 16px 20px'}}>
+      <div className="hp-wrap" style={{ paddingTop: '48px' }}>
         <ArticleSkeleton count={9} />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="hp-wrap" style={{ textAlign: 'center', padding: '56px 16px' }}>
+        <p style={{ color: '#dc2626', fontWeight: 600, marginBottom: '14px' }}>{error}</p>
+        <button
+          type="button"
+          onClick={triggerRetry}
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '6px',
+            padding: '8px 18px',
+            background: '#16a34a',
+            color: '#fff',
+            border: 'none',
+            borderRadius: '6px',
+            fontWeight: 600,
+            cursor: 'pointer',
+          }}
+        >
+          <RotateCcw size={15} />
+          Thử lại
+        </button>
       </div>
     );
   }
 
   const mainLead = heroArticles[0];
   const subLeads = heroArticles.slice(1, 3);
-
   const rightColumnSections = sections.slice(0, 6);
   const bottom4GridSections = sections.slice(4, 8);
 
   return (
-    <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '24px 16px 40px',color: '#1e293b', background: '#fff' }}>
-      
-      {/* =====================================================================
-          PHẦN 1: CỤM TIÊU ĐIỂM ĐẦU TRANG (HERO 3 CỘT)
-         ===================================================================== */}
+    <div className="hp-wrap">
       {mainLead && (
-        <section
-          style={{
-            marginBottom: '28px',
-            paddingBottom: '24px',
-            borderBottom: '1px solid #e5e7eb',
-            display: 'grid',
-            gridTemplateColumns: '1fr 1.85fr 1.05fr',
-            gap: '20px',
-            alignItems: 'start',
-          }}
-        >
-          {/* Cột trái Hero */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', borderRight: '1px solid #e2e8f0', paddingRight: '16px' }}>
+        <section className="hp-hero">
+          <div className="hp-hero-left">
             {subLeads.map((art) => (
               <article key={art.id} style={{ borderBottom: '1px solid #f1f5f9', paddingBottom: '12px' }}>
                 <Link to={articlePath(art)}>
                   <img
                     src={art.image || 'https://picsum.photos/400/250'}
                     alt={art.title}
-                    style={{ width: '100%', height: '135px', objectFit: 'cover', borderRadius: '4px', marginBottom: '8px', display: 'block' }}
+                    className="hp-hero-sub-img"
                   />
                 </Link>
                 <h3 style={{ margin: 0, fontSize: '14px', color: '#0f172a', lineHeight: '1.4', fontWeight: 700 }}>
@@ -174,13 +201,12 @@ export default function HomePage() {
             ))}
           </div>
 
-          {/* Cột giữa Hero */}
-          <article style={{ borderRight: '1px solid #e2e8f0', paddingRight: '20px' }}>
+          <article className="hp-hero-center">
             <Link to={articlePath(mainLead)}>
               <img
                 src={mainLead.image || 'https://picsum.photos/800/450'}
                 alt={mainLead.title}
-                style={{ width: '100%', height: '310px', objectFit: 'cover', borderRadius: '4px', marginBottom: '12px', display: 'block' }}
+                className="hp-hero-lead-img"
               />
             </Link>
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px' }}>
@@ -212,7 +238,6 @@ export default function HomePage() {
             </p>
           </article>
 
-          {/* Cột phải Hero: Tin mới nhận */}
           <aside>
             <div style={{ borderBottom: '2px solid #16a34a', paddingBottom: '6px', marginBottom: '12px' }}>
               <h2 style={{ margin: 0, fontSize: '15px', fontWeight: 700, color: '#16a34a', textTransform: 'uppercase' }}>
@@ -251,41 +276,18 @@ export default function HomePage() {
         </section>
       )}
 
-      {/* =====================================================================
-          PHẦN 2: THÂN TRANG CHIA HẲN 2 CỘT LỚN CHẠY DÀI SONG SONG (CHUẨN DÂN TRÍ)
-         ===================================================================== */}
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: '1fr 1.35fr',
-          gap: '28px',
-          alignItems: 'start',
-          paddingBottom: '32px',
-          borderBottom: '1px solid #e5e7eb',
-          marginBottom: '28px',
-        }}
-      >
-        {/* -------------------- CỘT TRÁI: DÒNG CHẢY TIN DỌC + CHỦ ĐỀ NÓNG -------------------- */}
-        <div style={{ borderRight: '1px solid #e5e7eb', paddingRight: '24px', display: 'flex', flexDirection: 'column', gap: '18px' }}>
+      <div className="hp-body">
+        <div className="hp-left-stream">
           {leftStreamArticles.slice(0, 6).map((art) => (
-            <article
-              key={`stream-top-${art.id}`}
-              style={{
-                display: 'flex',
-                gap: '14px',
-                alignItems: 'flex-start',
-                paddingBottom: '16px',
-                borderBottom: '1px solid #f1f5f9',
-              }}
-            >
+            <article key={`stream-top-${art.id}`} className="hp-stream-card">
               <Link to={articlePath(art)} style={{ flexShrink: 0 }}>
                 <img
                   src={art.image || 'https://picsum.photos/220/145'}
                   alt={art.title}
-                  style={{ width: '145px', height: '96px', objectFit: 'cover', borderRadius: '4px', display: 'block' }}
+                  className="hp-stream-img"
                 />
               </Link>
-              <div>
+              <div style={{ minWidth: 0 }}>
                 <h3 style={{ margin: '0 0 6px 0', fontSize: '15px', lineHeight: '1.35', fontWeight: 700 }}>
                   <Link to={articlePath(art)} style={{ color: '#0f172a', textDecoration: 'none' }}>
                     {art.title}
@@ -309,7 +311,6 @@ export default function HomePage() {
             </article>
           ))}
 
-          {/* KHỐI XEN KẼ GIỮA CỘT TRÁI: CHỦ ĐỀ NÓNG */}
           {hotTopics.length > 0 && (
             <div
               style={{
@@ -353,10 +354,8 @@ export default function HomePage() {
           {leftStreamArticles.slice(6).map((art, idx, arr) => (
             <article
               key={`stream-bottom-${art.id}`}
+              className="hp-stream-card"
               style={{
-                display: 'flex',
-                gap: '14px',
-                alignItems: 'flex-start',
                 paddingBottom: idx < arr.length - 1 ? '16px' : 0,
                 borderBottom: idx < arr.length - 1 ? '1px solid #f1f5f9' : 'none',
               }}
@@ -365,10 +364,10 @@ export default function HomePage() {
                 <img
                   src={art.image || 'https://picsum.photos/220/145'}
                   alt={art.title}
-                  style={{ width: '145px', height: '96px', objectFit: 'cover', borderRadius: '4px', display: 'block' }}
+                  className="hp-stream-img"
                 />
               </Link>
-              <div>
+              <div style={{ minWidth: 0 }}>
                 <h3 style={{ margin: '0 0 6px 0', fontSize: '15px', lineHeight: '1.35', fontWeight: 700 }}>
                   <Link to={articlePath(art)} style={{ color: '#0f172a', textDecoration: 'none' }}>
                     {art.title}
@@ -393,8 +392,7 @@ export default function HomePage() {
           ))}
         </div>
 
-        {/* -------------------- CỘT PHẢI: TẤT CẢ CHUYÊN MỤC XẾP DỌC NỐI TIẾP -------------------- */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '28px' }}>
+        <div className="hp-right-sections">
           {rightColumnSections.map((sec, sIdx) => {
             const lead = sec.articles[0];
             const subList = sec.articles.slice(1, 5);
@@ -418,14 +416,14 @@ export default function HomePage() {
                   </Link>
                 </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.15fr', gap: '18px', alignItems: 'start' }}>
+                <div className="hp-sec-split">
                   {lead && (
-                    <article style={{ borderRight: '1px solid #f1f5f9', paddingRight: '14px' }}>
+                    <article className="hp-sec-lead">
                       <Link to={articlePath(lead)}>
                         <img
                           src={lead.image || 'https://picsum.photos/450/280'}
                           alt={lead.title}
-                          style={{ width: '100%', height: '165px', objectFit: 'cover', borderRadius: '4px', marginBottom: '10px', display: 'block' }}
+                          className="hp-sec-lead-img"
                         />
                       </Link>
                       <h3 style={{ margin: '0 0 8px 0', fontSize: '16px', lineHeight: '1.35', fontWeight: 700 }}>
@@ -468,11 +466,7 @@ export default function HomePage() {
                         </Link>
                         {art.image && (
                           <Link to={articlePath(art)} style={{ flexShrink: 0 }}>
-                            <img
-                              src={art.image}
-                              alt={art.title}
-                              style={{ width: '82px', height: '56px', objectFit: 'cover', borderRadius: '3px', display: 'block' }}
-                            />
+                            <img src={art.image} alt={art.title} className="hp-sec-thumb" />
                           </Link>
                         )}
                       </div>
@@ -485,17 +479,8 @@ export default function HomePage() {
         </div>
       </div>
 
-      {/* =====================================================================
-          PHẦN 3: HÀNG 4 CHUYÊN MỤC NGANG HÀNG Ở ĐÁY TRANG
-         ===================================================================== */}
       {bottom4GridSections.length > 0 && (
-        <section
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(4, minmax(0, 1fr))',
-            gap: '20px',
-          }}
-        >
+        <section className="hp-bottom-4">
           {bottom4GridSections.map((col) => {
             const lead = col.articles[0];
             const rest = col.articles.slice(1, 4);
@@ -516,7 +501,7 @@ export default function HomePage() {
                       <img
                         src={lead.image || 'https://picsum.photos/400/250'}
                         alt={lead.title}
-                        style={{ width: '100%', height: '135px', objectFit: 'cover', borderRadius: '4px', marginBottom: '8px', display: 'block' }}
+                        className="hp-bottom-lead-img"
                       />
                     </Link>
                     <h3 style={{ margin: 0, fontSize: '15px', lineHeight: '1.35', fontWeight: 700 }}>
@@ -545,11 +530,7 @@ export default function HomePage() {
                       </Link>
                       {art.image && (
                         <Link to={articlePath(art)} style={{ flexShrink: 0 }}>
-                          <img
-                            src={art.image}
-                            alt={art.title}
-                            style={{ width: '68px', height: '48px', objectFit: 'cover', borderRadius: '3px', display: 'block' }}
-                          />
+                          <img src={art.image} alt={art.title} className="hp-bottom-thumb" />
                         </Link>
                       )}
                     </div>
