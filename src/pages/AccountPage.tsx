@@ -884,9 +884,10 @@ export default function AccountPage() {
                         </div>
                     </Editor>
                 </AccountRow>
+                <DataBackup />
                     </>
                     )}
-                <DataBackup />
+
             </div>
         </div>
     );
