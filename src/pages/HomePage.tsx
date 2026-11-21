@@ -6,6 +6,7 @@ import { articlePath } from '../services/format';
 import { CATEGORIES } from '../config/categories';
 // import ArticleSkeleton from '../components/ArticleSkeleton';
 import type { Article } from '../types';
+import '../css/HomePage.css';
 
 interface CategorySection {
   name: string;
