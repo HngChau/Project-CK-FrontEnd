@@ -1,11 +1,12 @@
 
 import { useEffect } from 'react';
-import { useParams, useSearchParams } from 'react-router-dom';
+import { Link,useParams, useSearchParams } from 'react-router-dom';
 import { getFeed } from '../services/rss';
-import { getCategory } from '../config/categories';
+import { getCategory, CATEGORY_HOVER_ITEMS } from '../config/categories';
 import { useAsync } from '../hooks/useAsync';
 import ArticleList from '../components/ArticleList';
 import Pagination from '../components/Pagination';
+import '../css/CategoryPage.css';
 
 const ARTICLES_PER_PAGE = 12;
 
@@ -25,6 +26,8 @@ export default function CategoryPage() {
 
   const articles = state.data ?? [];
   const totalPages = Math.ceil(articles.length / ARTICLES_PER_PAGE);
+
+  const subCategories = CATEGORY_HOVER_ITEMS?.[slug] ?? [];//Chuyên mục con
 
   // Kiểm tra và sửa số trang không hợp lệ trên URL
   useEffect(() => {
@@ -85,21 +88,67 @@ export default function CategoryPage() {
     ),
   };
 
-  if (!cat) return <p>Chuyên mục không tồn tại.</p>;
+  if (!cat){
+    return (
+      <div className="cp-not-found">
+        <p style={{ margin: 0, fontSize: '16px', fontWeight: 700 }}>
+          Chuyên mục không tồn tại.
+        </p>
+        <Link to="/" className="cp-not-found-link">
+          Quay về Trang chủ
+        </Link>
+      </div>
+    );
+  }
 
   return (
-    <>
-      <h1>{cat.name}</h1>
+    <div className="cp-wrap">
+      {/* Đường dẫn điều hướng nhỏ */}
+      <nav aria-label="Breadcrumb" className="cp-breadcrumb">
+        <Link to="/">Trang chủ</Link>
+        <span>/</span>
+        <span style={{ color: '#0f172a', fontWeight: 600 }}>{cat.name}</span>
+      </nav>
 
-      <ArticleList state={paginatedState} />
+      {/* Tiêu đề chuyên mục + chuyên mục con */}
+      <header className="cp-header">
+        <div className="cp-title-group">
+          <h1 className="cp-title">{cat.name}</h1>
+          {!state.loading && !state.error && articles.length > 0 && (
+            <span className="cp-count">({articles.length} tin)</span>
+          )}
+        </div>
 
-      {!state.loading && !state.error && (
-        <Pagination
-          currentPage={Math.min(currentPage, Math.max(totalPages, 1))}
-          totalPages={totalPages}
-          onPageChange={handlePageChange}
-        />
+        {subCategories.length > 0 && (
+          <div className="cp-subnav">
+            {subCategories.map((sub) => (
+              <Link
+                key={sub.slug}
+                to={`/chuyen-muc/${sub.slug}`}
+                className="cp-subchip"
+              >
+                {sub.name}
+              </Link>
+            ))}
+          </div>
+        )}
+      </header>
+
+      {/* Danh sách bài viết */}
+      <main className="cp-list-area">
+        <ArticleList state={paginatedState} />
+      </main>
+
+      {/* Phân trang */}
+      {!state.loading && !state.error && totalPages > 1 && (
+        <div className="cp-pagination-wrap">
+          <Pagination
+            currentPage={Math.min(currentPage, Math.max(totalPages, 1))}
+            totalPages={totalPages}
+            onPageChange={handlePageChange}
+          />
+        </div>
       )}
-    </>
+    </div>
   );
 }

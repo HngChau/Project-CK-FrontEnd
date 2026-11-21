@@ -973,3 +973,216 @@ button { cursor: pointer; font: inherit; }
         font-size: 12px;
     }
 }
+
+/* Thanh chuyên mục */
+.catbar-wrap {
+    position: relative;
+    width: 100%;
+    background: var(--header-bg);
+    border-bottom: 2px solid var(--green);
+    z-index: 60;
+}
+
+.catbar-inner {
+    max-width: 1100px;
+    height: 46px;
+    margin: 0 auto;
+    padding: 0 16px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 8px;
+}
+
+.catbar-nav {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 4px;
+    min-width: 0;
+    height: 100%;
+    margin-left: -10px;
+}
+
+.catbar-item {
+    position: relative;
+    height: 100%;
+    display: flex;
+    align-items: center;
+}
+
+.catbar-item.has-hover::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 100%;
+    height: 8px;
+}
+
+.catbar-link {
+    display: inline-flex;
+    align-items: center;
+    height: 100%;
+    padding: 0 10px;
+    font-size: 15.5px;
+    font-weight: 600;
+    color: var(--ink);
+    white-space: nowrap;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -2px;
+    transition: color 0.16s ease, border-color 0.16s ease;
+}
+
+.catbar-item:hover .catbar-link,
+.catbar-link.is-active {
+    color: var(--green);
+    border-bottom-color: var(--green);
+}
+
+.catbar-dropdown {
+    position: absolute;
+    top: calc(100% + 2px);
+    left: 0;
+    min-width: 210px;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-top: 2px solid var(--green);
+    border-radius: 6px;
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.14);
+    padding: 6px 0;
+    z-index: 95;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(6px);
+    pointer-events: none;
+    transition: opacity 0.16s ease, transform 0.16s ease, visibility 0.16s ease;
+}
+
+.catbar-item.has-hover:hover .catbar-dropdown,
+.catbar-item.has-hover:focus-within .catbar-dropdown {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+    pointer-events: auto;
+}
+
+.catbar-sublink {
+    display: block;
+    padding: 8px 14px;
+    font-size: 13.5px;
+    font-weight: 500;
+    color: var(--ink);
+    white-space: nowrap;
+    transition: background-color 0.15s ease, color 0.15s ease, padding-left 0.15s ease;
+}
+
+.catbar-sublink:hover {
+    background: var(--soft);
+    color: var(--green);
+    padding-left: 18px;
+}
+
+.catbar-toggle-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    flex-shrink: 0;
+    border: 1px solid transparent;
+    background: transparent;
+    color: var(--ink);
+    border-radius: 6px;
+    transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.catbar-toggle-btn:hover {
+    background: var(--soft);
+    color: var(--green);
+}
+
+/* Bảng xổ mở rộng khi bấm ••• */
+.catbar-drawer {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: var(--surface);
+    border-bottom: 1px solid var(--line);
+    box-shadow: 0 16px 32px rgba(0, 0, 0, 0.16);
+    z-index: 90;
+    padding: 20px 0 24px;
+}
+
+.catbar-drawer-inner {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 16px;
+    display: grid;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: 18px 16px;
+}
+
+.catbar-drawer-title {
+    display: block;
+    font-size: 13px;
+    font-weight: 650;
+    text-transform: uppercase;
+    color: var(--ink);
+    margin-bottom: 8px;
+}
+
+.catbar-drawer-title:hover {
+    color: var(--green);
+}
+
+.catbar-drawer-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.catbar-drawer-list a {
+    font-size: 13px;
+    color: var(--muted);
+}
+
+.catbar-drawer-list a:hover {
+    color: var(--green);
+}
+
+@media (max-width: 992px) {
+    .catbar-nav {
+        overflow-x: auto;
+        justify-content: flex-start;
+        gap: 4px;
+        scrollbar-width: none;
+    }
+
+    .catbar-nav::-webkit-scrollbar {
+        display: none;
+    }
+
+    .catbar-drawer-inner {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 576px) {
+    .catbar-inner {
+        padding: 0 12px;
+    }
+
+    .catbar-link {
+        padding: 0 8px;
+        font-size: 13px;
+    }
+
+    .catbar-drawer-inner {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
